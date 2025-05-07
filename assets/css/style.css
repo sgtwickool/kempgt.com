@@ -1,28 +1,213 @@
-body {
-  font-family: "Lato", sans-serif;
+/* General Colors */
+:root {
+  --primary-color: #40E0D0;
+  --secondary-color: #008080;
+  --background-light: #F5FFFA;
+  --background-dark: #005F5F;
+  --accent-color: #FF7F50;
 }
 
+/* Body and Background */
+body {
+  font-family: "Lato", sans-serif;
+  background-color: var(--background-light);
+  color: var(--secondary-color);
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--background-light);
+  border-bottom: 2px solid var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+.navbar-brand {
+  color: var(--secondary-color);
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-link {
+  color: var(--secondary-color);
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--accent-color); /* Coral for hover */
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: #fff;
+}
+
+/* Hero Section */
 .hero {
   min-height: 90vh;
-  background: linear-gradient(to bottom right, #0d6efd, #6610f2);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: #fff;
   padding: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add text shadow for contrast */
+}
+
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.hero p {
+  font-size: 1.5rem;
+  margin-top: 1rem;
+}
+
+.hero .btn-primary {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  font-size: 1.2rem;
+  padding: 0.75rem 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hero .btn-primary:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Add hover effect */
 }
 
 section {
   padding: 4rem 0;
 }
 
+/* About Section */
+#about {
+  background-color: var(--background-light);
+}
+
+#about img {
+  /* Removed the border property */
+  border-radius: 50%; /* Keep the image circular */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+}
+
+#about p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+}
+
 h2 {
-  font-weight: bold;
-  color: #333;
+  font-size: 2.5rem; /* Consistent font size */
+  font-weight: bold; /* Uniform weight */
+  text-transform: uppercase; /* All headings in uppercase */
+  letter-spacing: 1.5px; /* Consistent letter spacing */
+  margin-bottom: 2rem; /* Uniform spacing below headings */
+  text-align: center; /* Center-align all headings */
+}
+
+/* Projects Section */
+#projects {
+  background-color: var(--background-dark);
+  color: #fff;
+}
+
+.card {
+  background-color: var(--background-light);
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add shadow for depth */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2); /* Add hover effect */
 }
 
 .card-title {
   font-weight: bold;
+  color: var(--secondary-color);
+  font-size: 1.5rem;
 }
 
-.badge {
-  font-size: 1rem;
-  padding: 0.75em 1em;
+/* Skills Section */
+#skills {
+  background-color: var(--background-light);
+}
+
+#skills .row {
+  justify-content: center; /* Center-align the skill cards */
+}
+
+.skill-card {
+  background-color: var(--primary-color); /* Turquoise */
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 0 auto; /* Center the card within its column */
+}
+
+.skill-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  background-color: var(--accent-color); /* Coral on hover */
+}
+
+.skill-card span {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Contact Section */
+#contact {
+  background-color: var(--background-dark);
+  color: #fff;
+}
+
+#contact p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+}
+
+#contact .btn-outline-primary {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+  font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#contact .btn-outline-primary:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Add hover effect */
+}
+
+/* Footer */
+footer {
+  background-color: var(--secondary-color); /* Teal background for visibility */
+  padding: 2rem 0;
+  text-align: center;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-top: 2px solid var(--primary-color); /* Turquoise border for consistency */
 }
