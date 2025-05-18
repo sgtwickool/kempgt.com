@@ -89,6 +89,12 @@ section {
   padding: 4rem 0;
 }
 
+/* Ensure anchor targets are not hidden behind the navbar.
+   This also helps with AOS animations, which can shift section headings. */
+section[id] {
+  scroll-margin-top: 80px; /* Adjust to match your navbar height */
+}
+
 /* About Section */
 #about {
   background-color: var(--background-light);
