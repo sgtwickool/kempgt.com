@@ -48,6 +48,15 @@
                 >Download CV</a
               >
             </li>
+            <li class="nav-item d-flex align-items-center ms-3">
+              <button
+                id="darkModeToggle"
+                class="btn btn-sm btn-outline-secondary"
+                aria-label="Toggle dark mode"
+              >
+                <span id="darkModeIcon" class="bi bi-moon"></span>
+              </button>
+            </li>
           </ul>
         </div>
       </div>
@@ -56,22 +65,39 @@
     <!-- Hero Section -->
     <section
       class="hero d-flex align-items-center justify-content-center text-center"
+      data-aos="fade-in"
     >
       <div>
-        <h1 class="display-4 fw-bold">Full-Stack Engineer</h1>
-        <p class="lead mt-3">
+        <h1
+          class="display-4 fw-bold"
+          data-aos="fade-up"
+          data-aos-delay="100"
+        >
+          Full-Stack Engineer
+        </h1>
+        <p class="lead mt-3" data-aos="fade-up" data-aos-delay="200">
           Building scalable, pragmatic solutions with clean code principles.
         </p>
-        <a href="#projects" class="btn btn-primary mt-4">View My Work</a>
+        <a
+          href="#projects"
+          class="btn btn-primary mt-4"
+          data-aos="zoom-in"
+          data-aos-delay="300"
+          >View My Work</a
+        >
       </div>
     </section>
 
     <!-- About Section -->
-    <section id="about" class="py-5 bg-light">
+    <section id="about" class="py-5 bg-light" data-aos="fade-up">
       <div class="container">
         <h2>About Me</h2>
         <div class="row align-items-center">
-          <div class="col-md-4 text-center mb-4 mb-md-0">
+          <div
+            class="col-md-4 text-center mb-4 mb-md-0"
+            data-aos="zoom-in"
+            data-aos-delay="100"
+          >
             <img
               src="assets/img/profile.jpg"
               alt="Me rescuing a tortoise from a road in Croatia"
@@ -79,7 +105,7 @@
               style="width: 150px; height: 150px; object-fit: cover;"
             />
           </div>
-          <div class="col-md-8">
+          <div class="col-md-8" data-aos="fade-left" data-aos-delay="200">
             <p>
               I'm a pragmatic full-stack developer with over 10 years of
               experience designing and building web applications across .NET,
@@ -91,12 +117,94 @@
       </div>
     </section>
 
+    <!-- Tech Stack Section -->
+    <section id="techstack" class="py-5" data-aos="fade-up">
+      <div class="container">
+        <h2>Tech Stack</h2>
+        <div class="row justify-content-center g-4">
+          <div
+            class="col-4 col-sm-3 col-md-2 text-center"
+            data-aos="zoom-in"
+            data-aos-delay="100"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/dotnetcore/dotnetcore-original.svg"
+              alt=".NET"
+              style="width:48px;height:48px;"
+            />
+            <div class="mt-2">.NET</div>
+          </div>
+          <div
+            class="col-4 col-sm-3 col-md-2 text-center"
+            data-aos="zoom-in"
+            data-aos-delay="200"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg"
+              alt="C#"
+              style="width:48px;height:48px;"
+            />
+            <div class="mt-2">C#</div>
+          </div>
+          <div
+            class="col-4 col-sm-3 col-md-2 text-center"
+            data-aos="zoom-in"
+            data-aos-delay="300"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg"
+              alt="Angular"
+              style="width:48px;height:48px;"
+            />
+            <div class="mt-2">Angular</div>
+          </div>
+          <div
+            class="col-4 col-sm-3 col-md-2 text-center"
+            data-aos="zoom-in"
+            data-aos-delay="400"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg"
+              alt="Azure"
+              style="width:48px;height:48px;"
+            />
+            <div class="mt-2">Azure</div>
+          </div>
+          <div
+            class="col-4 col-sm-3 col-md-2 text-center"
+            data-aos="zoom-in"
+            data-aos-delay="500"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg"
+              alt="Docker"
+              style="width:48px;height:48px;"
+            />
+            <div class="mt-2">Docker</div>
+          </div>
+          <div
+            class="col-4 col-sm-3 col-md-2 text-center"
+            data-aos="zoom-in"
+            data-aos-delay="600"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+              alt="JavaScript"
+              style="width:48px;height:48px;"
+            />
+            <div class="mt-2">JavaScript</div>
+          </div>
+          <!-- Add more tech as needed -->
+        </div>
+      </div>
+    </section>
+
     <!-- Projects Section -->
-    <section id="projects" class="py-5">
+    <section id="projects" class="py-5" data-aos="fade-up">
       <div class="container">
         <h2>Projects</h2>
         <div class="row g-4">
-          <div class="col-md-6" data-aos="fade-up">
+          <div class="col-md-6" data-aos="fade-right" data-aos-delay="100">
             <div class="card h-100 shadow-sm border-0">
               <div class="card-body">
                 <h5 class="card-title">TariffTel Rebuild</h5>
@@ -107,7 +215,7 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+          <div class="col-md-6" data-aos="fade-left" data-aos-delay="200">
             <div class="card h-100 shadow-sm border-0">
               <div class="card-body">
                 <h5 class="card-title">LEAF Sustainability Platform</h5>
@@ -124,36 +232,60 @@
     </section>
 
     <!-- Skills Section -->
-    <section id="skills" class="py-5 bg-light">
+    <section id="skills" class="py-5 bg-light" data-aos="fade-up">
       <div class="container">
         <h2>Skills</h2>
         <div class="row g-4 justify-content-center">
-          <div class="col-6 col-sm-4 col-md-3 text-center">
+          <div
+            class="col-6 col-sm-4 col-md-3 text-center"
+            data-aos="flip-left"
+            data-aos-delay="100"
+          >
             <div class="skill-card">
               <span>.NET 8</span>
             </div>
           </div>
-          <div class="col-6 col-sm-4 col-md-3 text-center">
+          <div
+            class="col-6 col-sm-4 col-md-3 text-center"
+            data-aos="flip-left"
+            data-aos-delay="200"
+          >
             <div class="skill-card">
               <span>C#</span>
             </div>
           </div>
-          <div class="col-6 col-sm-4 col-md-3 text-center">
+          <div
+            class="col-6 col-sm-4 col-md-3 text-center"
+            data-aos="flip-left"
+            data-aos-delay="300"
+          >
             <div class="skill-card">
               <span>Angular</span>
             </div>
           </div>
-          <div class="col-6 col-sm-4 col-md-3 text-center">
+          <div
+            class="col-6 col-sm-4 col-md-3 text-center"
+            data-aos="flip-left"
+            data-aos-delay="400"
+          >
             <div class="skill-card">
               <span>Azure</span>
             </div>
           </div>
-          <div class="col-6 col-sm-4 col-md-3 text-center">
+          <div
+            class="col-6 col-sm-4 col-md-3 text-center"
+            data-aos="flip-left"
+            data-aos-delay="500"
+          >
             <div class="skill-card">
               <span>Docker</span>
             </div>
           </div>
-          <div class="col-6 col-sm-4 col-md-3 text-center">
+          <div
+            class="col-6 col-sm-4 col-md-3 text-center"
+            data-aos="flip-left"
+            data-aos-delay="600"
+          >
             <div class="skill-card">
               <span>RxJS</span>
             </div>
@@ -163,24 +295,83 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="py-5">
+    <section id="contact" class="py-5" data-aos="fade-up">
       <div class="container text-center">
         <h2>Contact</h2>
-        <p class="mb-4">Let's build something great together.</p>
-        <a href="mailto:greg@kempgt.com" class="btn btn-outline-primary"
+        <p class="mb-4" data-aos="fade-up" data-aos-delay="100">
+          Let's build something great together.
+        </p>
+        <a
+          href="mailto:greg@kempgt.com"
+          class="btn btn-outline-primary"
+          data-aos="zoom-in"
+          data-aos-delay="200"
           >Email Me</a
         >
       </div>
     </section>
 
-    <footer class="py-4 bg-light text-center small">
-      <div class="container">© 2025 Greg Kemp. All rights reserved.</div>
+    <footer class="py-4 footer text-center small">
+      <div class="container">
+        <div class="mb-3">
+          <a
+            href="https://github.com/sgtwickool"
+            target="_blank"
+            rel="noopener"
+            class="footer-icon-link me-3"
+            aria-label="GitHub"
+          >
+            <i class="bi bi-github"></i>
+          </a>
+          <a
+            href="https://www.linkedin.com/in/gregkemp/"
+            target="_blank"
+            rel="noopener"
+            class="footer-icon-link me-3"
+            aria-label="LinkedIn"
+          >
+            <i class="bi bi-linkedin"></i>
+          </a>
+          <!-- Add more social links as needed -->
+        </div>
+        <div class="mb-2">
+          © 2025 Greg Kemp. All rights reserved.
+        </div>
+        <a
+          href="#"
+          class="footer-backtotop d-inline-block mt-2"
+          aria-label="Back to top"
+        >
+          <i class="bi bi-arrow-up-circle"></i> Back to Top
+        </a>
+      </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Bootstrap Icons CDN for moon/sun icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
     <script>
       AOS.init({ duration: 800, once: true });
+
+      // Dark mode toggle logic
+      const toggle = document.getElementById("darkModeToggle");
+      const icon = document.getElementById("darkModeIcon");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const storedTheme = localStorage.getItem("theme");
+      function setTheme(dark) {
+        document.body.classList.toggle("dark-mode", dark);
+        icon.className = dark ? "bi bi-sun" : "bi bi-moon";
+        localStorage.setItem("theme", dark ? "dark" : "light");
+      }
+      // Initial theme
+      setTheme(storedTheme === "dark" || (!storedTheme && prefersDark));
+      toggle.addEventListener("click", () => {
+        setTheme(!document.body.classList.contains("dark-mode"));
+      });
     </script>
   </body>
 </html>
