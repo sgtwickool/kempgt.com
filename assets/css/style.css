@@ -1,10 +1,10 @@
 /* General Colors */
 :root {
-  --primary-color: #40E0D0;
+  --primary-color: #40e0d0;
   --secondary-color: #008080;
-  --background-light: #F5FFFA;
-  --background-dark: #005F5F;
-  --accent-color: #FF7F50;
+  --background-light: #f5fffa;
+  --background-dark: #005f5f;
+  --accent-color: #ff7f50;
 }
 
 /* Body and Background */
@@ -52,7 +52,11 @@ body {
 /* Hero Section */
 .hero {
   min-height: 90vh;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
   color: #fff;
   padding: 2rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Add text shadow for contrast */
@@ -266,7 +270,7 @@ footer.footer {
 }
 
 #techstack img {
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.08));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
   transition: transform 0.2s;
 }
 
@@ -340,7 +344,7 @@ body.dark-mode .skill-card:hover {
 }
 
 body.dark-mode #techstack img {
-  filter: brightness(0.85) drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  filter: brightness(0.85) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 body.dark-mode #techstack .mt-2 {
