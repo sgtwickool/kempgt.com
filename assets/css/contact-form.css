@@ -12,7 +12,15 @@
 }
 .contact-form label {
   font-weight: 500;
-  color: #2c3e50;
+  color: var(--teal, #20cfcf);
+}
+
+:root {
+  --teal: #20cfcf;
+}
+
+body.dark-mode .contact-form label {
+  color: #20cfcf;
 }
 .contact-form ::placeholder {
   color: #b0b8c1;
@@ -21,4 +29,19 @@
 .contact-form textarea.form-control {
   min-height: 120px;
   resize: vertical;
+}
+
+/* Accent link styling for direct email link */
+.accent-link {
+  color: var(--teal, #20cfcf);
+  transition: color 0.2s;
+}
+.accent-link:hover,
+.accent-link:focus {
+  color: #17b3b3;
+  text-decoration: underline;
+}
+
+body.dark-mode .accent-link {
+  color: #20cfcf;
 }
