@@ -1,47 +1,50 @@
 .contact-form .form-control {
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
-  border: 1px solid #e3e6ee;
-  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
+
 .contact-form .form-control:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15);
-  background: #fff;
+  border-color: var(--deep-teal, #007377);
+  box-shadow: 0 0 0 2px rgba(0, 115, 119, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
 }
+
+.contact-form .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
 .contact-form label {
   font-weight: 500;
-  color: var(--teal, #20cfcf);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
 }
 
-:root {
-  --teal: #20cfcf;
-}
-
-body.dark-mode .contact-form label {
-  color: #20cfcf;
-}
-.contact-form ::placeholder {
-  color: #b0b8c1;
-  opacity: 1;
-}
 .contact-form textarea.form-control {
   min-height: 120px;
   resize: vertical;
 }
 
-/* Accent link styling for direct email link */
 .accent-link {
-  color: var(--teal, #20cfcf);
+  color: var(--deep-teal, #007377);
   transition: color 0.2s;
 }
+
 .accent-link:hover,
 .accent-link:focus {
-  color: #17b3b3;
-  text-decoration: underline;
+  color: #009296;
 }
 
-body.dark-mode .accent-link {
-  color: #20cfcf;
+/* Dark mode adjustments */
+body.dark-mode .contact-form .form-control {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+body.dark-mode .contact-form .form-control:focus {
+  border-color: var(--deep-teal);
+  background: rgba(255, 255, 255, 0.06);
 }
