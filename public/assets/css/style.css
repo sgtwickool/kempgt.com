@@ -649,3 +649,330 @@ body.dark-mode footer {
     padding: 3.5rem 0;
   }
 }
+
+/* ========================================
+   Blog
+   Editorial reading layer on top of the site's design system.
+   UI stays Inter; long-form prose uses Newsreader for a calmer read.
+   ======================================== */
+
+.blog-listing,
+.blog-post {
+  background-color: var(--bg-white);
+}
+
+/* --- Listing --- */
+.blog-listing-header {
+  margin-bottom: 3rem;
+}
+
+.blog-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--deep-teal);
+  margin-bottom: 0.75rem;
+}
+
+.blog-listing-intro {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  max-width: 38rem;
+}
+
+.blog-list {
+  margin: 0;
+  padding: 0;
+}
+
+.blog-list-item + .blog-list-item {
+  margin-top: 1.25rem;
+}
+
+.blog-list-link {
+  display: block;
+  padding: 1.75rem;
+  background: var(--bg-white);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--deep-teal);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.blog-list-link:hover {
+  box-shadow: 0 0 24px rgba(0, 115, 119, 0.12);
+  border-color: rgba(0, 115, 119, 0.3);
+  border-left-color: var(--deep-teal);
+  transform: translateY(-2px);
+}
+
+.blog-list-meta {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--deep-teal);
+  margin-bottom: 0.35rem;
+}
+
+.blog-list-title {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--dark-navy);
+  margin-bottom: 0.5rem;
+}
+
+.blog-list-link:hover .blog-list-title {
+  color: var(--deep-teal);
+}
+
+.blog-list-summary {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--soft-grey);
+}
+
+/* --- Post --- */
+.blog-post .blog-container {
+  max-width: 720px;
+}
+
+.blog-back {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--deep-teal);
+  text-decoration: none;
+  margin-bottom: 2rem;
+}
+
+.blog-back:hover {
+  color: var(--accent);
+}
+
+.blog-post-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.blog-post-meta {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--deep-teal);
+  margin-bottom: 0.75rem;
+}
+
+.blog-post-title {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.5px;
+  color: var(--dark-navy);
+  margin-bottom: 1rem;
+}
+
+.blog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.blog-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background-color: rgba(0, 115, 119, 0.1);
+  color: var(--deep-teal);
+}
+
+/* Long-form prose */
+.blog-content {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.25rem;
+  line-height: 1.75;
+  color: #2b3440;
+}
+
+.blog-content > p:first-of-type {
+  font-size: 1.4rem;
+  line-height: 1.55;
+  color: var(--dark-navy);
+}
+
+.blog-content p {
+  margin-bottom: 1.5rem;
+}
+
+.blog-content h2,
+.blog-content h3 {
+  font-family: "Newsreader", Georgia, serif;
+  color: var(--dark-navy);
+  letter-spacing: -0.3px;
+}
+
+.blog-content h2 {
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+}
+
+.blog-content h3 {
+  font-size: 1.45rem;
+  font-weight: 600;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.blog-content a {
+  color: var(--deep-teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(0, 115, 119, 0.4);
+}
+
+.blog-content a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.blog-content blockquote {
+  margin: 2rem 0;
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  border-left: 3px solid var(--deep-teal);
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.blog-content hr {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 3rem auto;
+  width: 100%;
+}
+
+.blog-content ul,
+.blog-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.blog-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Inline code keeps the UI font; code blocks come pre-themed from Shiki */
+.blog-content code:not(pre code) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  background-color: rgba(0, 115, 119, 0.1);
+  color: var(--deep-teal);
+}
+
+.blog-content pre {
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius);
+  overflow-x: auto;
+  margin: 2rem 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border: 1px solid var(--border-subtle);
+}
+
+.blog-content .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+}
+
+/* --- Blog dark mode (mirrors the site's dark palette) --- */
+body.dark-mode .blog-listing,
+body.dark-mode .blog-post {
+  background-color: #0f1419 !important;
+}
+
+body.dark-mode .blog-list-link {
+  background-color: #1a2028;
+  border-color: #1f2937;
+  border-left-color: var(--deep-teal);
+}
+
+body.dark-mode .blog-list-link:hover {
+  box-shadow: 0 0 25px rgba(0, 115, 119, 0.15);
+  border-color: rgba(0, 115, 119, 0.35);
+}
+
+body.dark-mode .blog-list-title {
+  color: #f3f4f6;
+}
+
+body.dark-mode .blog-list-summary {
+  color: #9ca3af;
+}
+
+body.dark-mode .blog-post-header {
+  border-bottom-color: #1f2937;
+}
+
+body.dark-mode .blog-post-title,
+body.dark-mode .blog-content h2,
+body.dark-mode .blog-content h3 {
+  color: #f3f4f6;
+}
+
+body.dark-mode .blog-content {
+  color: #c3cad3;
+}
+
+body.dark-mode .blog-content > p:first-of-type {
+  color: #e5e7eb;
+}
+
+body.dark-mode .blog-content blockquote {
+  color: #9ca3af;
+}
+
+body.dark-mode .blog-content hr {
+  border-top-color: #1f2937;
+}
+
+body.dark-mode .blog-content pre {
+  border-color: #1f2937;
+}
+
+@media (max-width: 768px) {
+  .blog-post-title {
+    font-size: 2.1rem;
+  }
+
+  .blog-content {
+    font-size: 1.15rem;
+  }
+
+  .blog-content > p:first-of-type {
+    font-size: 1.25rem;
+  }
+
+  .blog-list-link {
+    padding: 1.25rem;
+  }
+}

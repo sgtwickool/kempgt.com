@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+---
+
+<BaseLayout
+  title="Blog | Greg Kemp"
+  description="A public lab notebook from an engineer moving into ML research."
+>
+  <section class="blog-listing">
+    <div class="container">
+      <div class="blog-container mx-auto">
+        <header class="blog-listing-header" data-aos="fade-up">
+          <p class="blog-eyebrow">Writing</p>
+          <h1 class="section-heading">Blog</h1>
+          <p class="blog-listing-intro">
+            A public lab notebook. Notes, reproductions, and the occasional
+            essay as I work my way from software engineering into ML research.
+          </p>
+        </header>
+
+        {
+          posts.length === 0 && (
+            <p class="text-muted">No posts yet. Check back soon.</p>
+          )
+        }
+
+        <ul class="blog-list list-unstyled">
+          {
+            posts.map((post, i) => (
+              <li
+                class="blog-list-item"
+                data-aos="fade-up"
+                data-aos-delay={Math.min(i * 80, 320)}
+              >
+                <a href={`/blog/${post.id}`} class="blog-list-link">
+                  <p class="blog-list-meta">{formatDate(post.data.date)}</p>
+                  <h2 class="blog-list-title">{post.data.title}</h2>
+                  <p class="blog-list-summary">{post.data.summary}</p>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
