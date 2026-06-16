@@ -64,4 +64,4 @@ Onward.
 
 ---
 
-*Code lives at [github.com/sgtwickool/ml-journey](https://github.com/sgtwickool/ml-journey). Site: [kempgt.com](https://kempgt.com).*
+*Code lives at [github.com/sgtwickool/ml-journey](https://github.com/sgtwickool/ml-journey).*
