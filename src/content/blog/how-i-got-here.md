@@ -10,7 +10,7 @@ This is the first post on this blog. The blog exists because I'm spending the ne
 
 ## ITER, briefly
 
-I did a mechanical engineering bachelors and spent an internship at ITER doing dynamic analysis on the "first wall". The first wall is the surface of the blanket layer that faces the plasma inside the tokamak. It is one of the more abused pieces of metal in the universe. My job was to calculate the electrical body forces acting on the assembly, which gets complicated quickly because the structure is itself complicated, and because the magnetic fields it lives inside are doing genuinely strange things. I liked it. I liked the physics, I liked the people, I liked the building.
+I did a mechanical engineering bachelors and spent an internship at ITER doing dynamic analysis on the "first wall". The first wall is the surface of the blanket layer that faces the plasma inside the tokamak. It is one of the more abused pieces of metal in the universe. My job was to calculate the electrical body forces acting on the assembly, which gets complicated quickly because the structure is itself complicated, and because the magnetic fields it lives inside are doing genuinely strange things. I liked it. I liked the physics, I liked the people, I liked living and working in Barcelona.
 
 I did not love the speed at which decisions happened. That bit came back to bite me later.
 
