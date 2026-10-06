@@ -1,0 +1,81 @@
+---
+import { Icon } from "astro-icon/components";
+import ThemeToggle from "./ThemeToggle.astro";
+
+const links = [
+  { href: "/#route", label: "About" },
+  { href: "/#work", label: "Work" },
+  { href: "/#projects", label: "Projects" },
+  { href: "/#contact", label: "Contact" },
+];
+const cv = "/assets/Greg_Kemp_CV.pdf";
+---
+
+<header class="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 pt-6 pb-4 font-sans sm:px-8">
+  <a href="/" class="text-[1.2rem] font-black text-ink [font-stretch:125%]">Greg Kemp</a>
+
+  <div class="flex items-center gap-1 md:gap-6">
+    <nav aria-label="Main" class="hidden md:block">
+      <ul class="flex items-center gap-6 text-[0.85rem]">
+        {
+          links.map(({ href, label }) => (
+            <li>
+              <a href={href} class="text-muted transition-colors hover:text-ink">
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a
+      href={cv}
+      download
+      class="hidden rounded-[4px] border-[1.5px] border-ink px-3 py-1.5 text-[0.82rem] font-semibold text-ink transition-colors hover:bg-ink hover:text-paper md:inline-block"
+    >
+      Download CV
+    </a>
+
+    <ThemeToggle />
+
+    <details class="group relative md:hidden" data-mobile-menu>
+      <summary
+        class="inline-flex size-10 cursor-pointer list-none items-center justify-center rounded-full text-muted hover:bg-plate hover:text-ink [&::-webkit-details-marker]:hidden"
+      >
+        <span class="sr-only">Menu</span>
+        <Icon name="lucide:menu" class="size-5 group-open:hidden" aria-hidden="true" />
+        <Icon name="lucide:x" class="hidden size-5 group-open:block" aria-hidden="true" />
+      </summary>
+      <nav aria-label="Main" class="absolute right-0 z-20 mt-2 w-56 rounded-[4px] border-[1.5px] border-ink bg-paper p-2">
+        <ul>
+          {
+            links.map(({ href, label }) => (
+              <li>
+                <a href={href} class="block rounded-[3px] px-3 py-2.5 text-ink hover:bg-plate">
+                  {label}
+                </a>
+              </li>
+            ))
+          }
+          <li class="mt-1 border-t border-rule pt-1">
+            <a href={cv} download class="block rounded-[3px] px-3 py-2.5 font-semibold text-ink hover:bg-plate">
+              Download CV
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </details>
+  </div>
+</header>
+
+<script>
+  // Close the mobile menu after choosing a link, including same-page anchors.
+  function bindMobileMenu() {
+    const menu = document.querySelector<HTMLDetailsElement>("[data-mobile-menu]");
+    menu?.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => menu.removeAttribute("open")),
+    );
+  }
+  document.addEventListener("astro:page-load", bindMobileMenu);
+</script>

@@ -21,6 +21,7 @@ const { Content } = await render(post);
   tags={post.data.tags}
   summary={post.data.summary}
   math={post.data.math}
+  slug={post.id}
 >
   <Content />
 </BlogPost>

@@ -1,0 +1,35 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<button
+  type="button"
+  data-theme-toggle
+  aria-pressed="false"
+  class="inline-flex size-10 cursor-pointer items-center justify-center rounded-full text-muted transition-colors hover:bg-plate hover:text-ink"
+>
+  <span class="sr-only">Dark theme</span>
+  <Icon name="lucide:moon" class="size-[1.1rem] dark:hidden" aria-hidden="true" />
+  <Icon name="lucide:sun" class="hidden size-[1.1rem] dark:block" aria-hidden="true" />
+</button>
+
+<script>
+  // The initial theme is applied before paint by the inline script in
+  // BaseLayout; this only handles clicks and keeps aria-pressed in sync.
+  function bindThemeToggle() {
+    const button = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+    if (!button) return;
+    const root = document.documentElement;
+    button.setAttribute("aria-pressed", String(root.classList.contains("dark")));
+    button.addEventListener("click", () => {
+      const dark = root.classList.toggle("dark");
+      button.setAttribute("aria-pressed", String(dark));
+      try {
+        localStorage.setItem("theme", dark ? "dark" : "light");
+      } catch {
+        // Storage can be unavailable (private mode); the toggle still works for this page view.
+      }
+    });
+  }
+  document.addEventListener("astro:page-load", bindThemeToggle);
+</script>

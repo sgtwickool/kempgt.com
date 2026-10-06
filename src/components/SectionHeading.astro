@@ -1,0 +1,18 @@
+---
+// A section heading printed in two inks, slightly out of register: the pink
+// pass sits behind and the blue pass overprints it.
+interface Props {
+  text: string;
+  class?: string;
+}
+const { text, class: className } = Astro.props;
+const type =
+  "m-0 font-sans text-[clamp(2.4rem,6.2vw,4rem)] leading-[0.95] font-black tracking-[-0.03em] [font-stretch:125%] [text-wrap:balance]";
+---
+
+<div class:list={["relative", className]}>
+  <p aria-hidden="true" class:list={[type, "absolute inset-0 translate-x-[4px] translate-y-[3px] text-ink-line"]}>
+    {text}
+  </p>
+  <h2 class:list={[type, "ink relative text-ink-strong dark:mix-blend-normal"]}>{text}</h2>
+</div>

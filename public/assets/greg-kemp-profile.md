@@ -109,7 +109,7 @@ Polyglot microservices for fleet optimisation.
 - **Infrastructure**: Docker Compose orchestration
 
 ### gregkemp.dev
-Personal portfolio website and blog. Astro 5 static site with a Markdown blog (content collections, KaTeX maths), Bootstrap 5, vanilla JS, dark mode, Formspree contact form. Deployed to GitHub Pages via GitHub Actions.
+Personal portfolio website. Astro 5 static site styled with Tailwind CSS, with risograph-style generative SVG art computed at build time, light and dark themes, and a Formspree contact form. Deployed to GitHub Pages via GitHub Actions.
 
 ## Education
 

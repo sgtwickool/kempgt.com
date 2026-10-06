@@ -1,427 +1,324 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import PosterHero from "../components/PosterHero.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import Print from "../components/Print.astro";
+import ContactForm from "../components/ContactForm.astro";
+import type { PrintName } from "../lib/art";
+
+interface Item {
+  print: PrintName;
+  title: string;
+  body: string;
+  stack?: string;
+  when?: string;
+}
+
+const route: Item[] = [
+  {
+    print: "gears",
+    when: "2007–2013",
+    title: "Cardiff",
+    body: "A mechanical engineering degree, and my first proper taste of the maths I still like most.",
+  },
+  {
+    print: "tokamak",
+    when: "Internship",
+    title: "ITER, Barcelona",
+    body: "Calculating forces on the first wall, the part of a tokamak that faces the plasma. One of the more abused pieces of metal in the universe.",
+  },
+  {
+    print: "crag",
+    when: "2013",
+    title: "Climbing instructor",
+    body: "A year teaching climbing, until shoulder surgery grounded me and I tried programming to fill the time.",
+  },
+  {
+    print: "code",
+    when: "2014",
+    title: "First dev job",
+    body: "Joined CORE (UK) Ltd as a junior developer. Eleven years on I'm still there, now as senior developer and architect.",
+  },
+  {
+    print: "laser",
+    when: "2018–2019",
+    title: "MSc Fusion Energy, York",
+    body: "A thesis on QED radiation reaction in high-energy laser–plasma interactions. I came out loving the physics.",
+  },
+  {
+    print: "classifySmall",
+    when: "Now",
+    title: "Senior developer and architect",
+    body: "Designing and building TariffTel 2.0 with a small team. Mostly brand new work, which is the fun kind.",
+  },
+];
+
+const roles = [
+  { when: "2014–2017", role: "Junior developer" },
+  { when: "2017–2022", role: "Developer" },
+  { when: "2022–present", role: "Senior developer and architect" },
+];
+
+const workProjects: Item[] = [
+  {
+    print: "lanes",
+    title: "Master Data Management System",
+    body: "A new .NET 10 system with a custom CQRS dispatcher in place of MediatR, and Dapper wherever queries need to be fast.",
+    stack: ".NET 10, Angular 19, Tailwind, Dapper",
+  },
+  {
+    print: "functions",
+    title: "Customs Connect",
+    body: "Customs declaration software for Primark. I rebuilt version 2 as a fully serverless app that plugs into classification and supply-chain systems.",
+    stack: "Azure Functions, .NET",
+  },
+  {
+    print: "fibres",
+    title: "LEAF",
+    body: "Sustainability reporting that traces where garment fibres come from, for the SCAP scheme. Built from scratch with a small team and adopted by Primark.",
+    stack: "ASP.NET MVC, Azure Functions",
+  },
+  {
+    print: "grow",
+    title: "TariffTel Essentials and Premium",
+    body: "A customs classification web app for individuals, then its business sibling, which I built single-handedly.",
+    stack: "Angular, .NET",
+  },
+];
+
+const sideProjects: Item[] = [
+  {
+    print: "snippets",
+    title: "DevSync",
+    body: "A code snippet manager for teams, with roles, full-text search, GitHub sign-in, invitations and paid tiers.",
+    stack: "Next.js 16, PostgreSQL, Prisma, NextAuth",
+  },
+  {
+    print: "diff",
+    title: "CodeMop",
+    body: "AI code review. It hooks into GitHub pull requests and suggests improvements automatically.",
+    stack: "Python, FastAPI, PostgreSQL",
+  },
+  {
+    print: "route",
+    title: "EV Route Optimizer",
+    body: "Plans electric car journeys around charging stops, on an interactive map.",
+    stack: "Node.js, React 19, Leaflet, GraphHopper, OpenChargeMap",
+  },
+  {
+    print: "fleet",
+    title: "EV Fleet Platform",
+    body: "A .NET fleet API paired with a Python engine that solves vehicle routing with Google OR-Tools.",
+    stack: ".NET 8, Python, Flask, OR-Tools, Docker",
+  },
+];
+
+const interests: { print: PrintName; label: string }[] = [
+  { print: "crag", label: "Climbing" },
+  { print: "cave", label: "Caving" },
+  { print: "strings", label: "Guitar" },
+  { print: "loss", label: "Machine learning" },
+];
+
+const wrap = "mx-auto max-w-6xl px-5 sm:px-8";
+const intro = "m-0 max-w-[36em] text-[1.1rem] text-ink-soft";
+const label = "m-0 font-sans text-[0.78rem] font-semibold text-link tabular-nums";
+const itemTitle = "m-0 font-sans text-[1.05rem] leading-tight font-extrabold";
+const featureTitle =
+  "m-0 font-sans text-[1.9rem] leading-[1.05] font-black tracking-[-0.02em] [font-stretch:112%]";
 ---
 
-<BaseLayout
-  title="Greg Kemp | Senior Full-Stack Engineer"
-  description="Greg Kemp is a senior full-stack engineer who builds complete products end-to-end. 10+ years shipping production software for global brands."
->
-  <!-- Hero -->
-  <section class="hero d-flex align-items-center">
-    <div class="container">
-      <h1 data-aos="fade-up">
-        I build products,<br />
-        <span class="accent-text">end to end.</span>
-      </h1>
-      <p class="lead mt-3" data-aos="fade-up" data-aos-delay="100">
-        Senior full-stack engineer with 10+ years shipping production software.
-        From database schema to production UI, for brands like Primark and
-        SuperDry. Originally a mechanical engineer and fusion energy researcher.
-      </p>
-      <a
-        href="#experience"
-        class="btn btn-hero mt-4"
-        data-aos="fade-up"
-        data-aos-delay="200">See my work</a
-      >
-    </div>
-  </section>
+<BaseLayout title="Greg Kemp | Senior Full-Stack Engineer">
+  <PosterHero />
 
-  <!-- About -->
-  <section id="about" data-aos="fade-up">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-md-3 text-center mb-4 mb-md-0">
-          <img
-            src="/assets/img/profile.jpg"
-            alt="Me rescuing a tortoise from a road in Croatia"
-            style="width: 160px; height: 160px; object-fit: cover"
-          />
-        </div>
-        <div class="col-md-9">
-          <h2 class="section-heading">About me</h2>
-          <p>
-            I studied mechanical engineering at Cardiff, then did a master's in
-            fusion energy at York. Somewhere along the way I taught myself to
-            code, discovered I was good at it, and never looked back.
-          </p>
-          <p>
-            I've spent the last 11 years at one company, but that single tenure
-            hides a lot of range: 6+ greenfield products built from scratch, a
-            company rebrand and pivot, and clients ranging from Primark to
-            Triumph Motorcycles. I've gone from junior developer to senior
-            architect, and I now own technical direction for major systems in a
-            small, fast-moving team.
-          </p>
-          <p>
-            Based in Budapest. When I'm not coding I'm usually climbing, caving,
-            or playing guitar.
-          </p>
-        </div>
+  <div class:list={[wrap, "flex flex-col gap-24 pt-10 md:gap-36 md:pt-12"]}>
+    <div class="grid items-end gap-x-8 gap-y-6 md:grid-cols-12">
+      <p class="m-0 text-[1.2rem] leading-relaxed text-ink-soft md:col-span-8">
+        I'm Greg Kemp, a senior full-stack engineer in Budapest. I trained as a mechanical engineer and
+        worked on fusion at ITER before software took over. For eleven years I've been building products
+        for brands like Primark, SuperDry and Pepco, and these days I spend most of my time designing and
+        building TariffTel 2.0.
+      </p>
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-3 font-sans md:col-span-4 md:justify-end">
+        <a href="#work" class="button">See my work</a>
+        <a href="#contact" class="link">Get in touch</a>
       </div>
     </div>
-  </section>
 
-  <!-- Experience -->
-  <section
-    id="experience"
-    class="alt-bg"
-    style="background-color: var(--bg-light)"
-    data-aos="fade-up"
-  >
-    <div class="container">
-      <h2 class="section-heading text-center">Experience</h2>
-      <p class="section-subheading text-center">
-        CORE (UK) Ltd &rarr; TariffTel &middot; Trade compliance software for
-        global brands
-      </p>
-
-      <!-- Senior -->
-      <div class="timeline-phase">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2022 &ndash; Present</div>
-        <div class="timeline-title">Senior Developer / Architect</div>
-        <div class="row g-3">
-          <div class="col-12">
-            <div class="project-card">
-              <h5>TariffTel 2.0</h5>
-              <div class="project-meta">
-                .NET 8/10 &middot; Angular 19 &middot; Clean Architecture &middot;
-                CQRS &middot; SignalR &middot; Azure
-              </div>
-              <p>
-                Ground-up rewrite of a 10+ year legacy platform. The old system
-                was a mix of ASP.NET WebForms, WinForms, and millions of lines of
-                business logic buried in SQL stored procedures across 10 separate
-                database repositories. Designed the new architecture from scratch
-                and built the full system in under a year with a small team.
-                Real-time messaging via SignalR, enterprise SSO through Microsoft
-                Entra ID, and shared NPM libraries enabling consistent logic
-                across multiple frontends.
-              </p>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="project-card">
-              <h5>Master Data Management System</h5>
-              <div class="project-meta">
-                .NET 10 &middot; Angular 19 &middot; Tailwind &middot; Dapper
-              </div>
-              <p>
-                New system built on .NET 10 with a custom CQRS dispatcher
-                (replacing MediatR), Dapper for performance-critical queries, and
-                a Tailwind-based Angular UI.
-              </p>
-            </div>
-          </div>
-        </div>
+    <section id="route" class="flex flex-col gap-10">
+      <div class="flex flex-col gap-5">
+        <SectionHeading text="How I got here" />
+        <p class={intro}>Not a straight line. Physics, a climbing injury and a lot of software, in roughly that order.</p>
       </div>
-
-      <!-- Mid -->
-      <div class="timeline-phase">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2017 &ndash; 2022</div>
-        <div class="timeline-title">Developer</div>
-        <div class="row g-3">
-          <div class="col-md-6">
-            <div class="project-card">
-              <h5>Customs Connect</h5>
-              <div class="project-meta">
-                Azure Functions &middot; .NET &middot; Serverless
-              </div>
-              <p>
-                Customs declaration software built for Primark. Rebuilt v2 as a
-                fully serverless Azure Functions application, integrating with
-                classification and supply chain systems to automate the
-                declaration process.
-              </p>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="project-card">
-              <h5>LEAF</h5>
-              <div class="project-meta">
-                MVC &middot; Azure Functions &middot; Sustainability
-              </div>
-              <p>
-                Sustainability reporting platform tracking fibre origins for the
-                SCAP scheme. Built from scratch with a small team. Adopted by
-                Primark and being evaluated by SuperDry before their restructure.
-              </p>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="project-card">
-              <h5>TariffTel Essentials &amp; Premium</h5>
-              <div class="project-meta">
-                Angular &middot; .NET &middot; B2C / B2B
-              </div>
-              <p>
-                Built TariffTel Essentials, a B2C customs classification web app.
-                Later built TariffTel Premium (the B2B version) single-handedly,
-                which laid the architectural groundwork for the eventual TariffTel
-                2.0 rewrite.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Junior -->
-      <div class="timeline-phase">
-        <div class="timeline-dot"></div>
-        <div class="timeline-date">2014 &ndash; 2017</div>
-        <div class="timeline-title">Junior Developer</div>
-        <div class="row g-3">
-          <div class="col-12">
-            <div class="project-card">
-              <h5>Supply Chain &amp; Classification Software</h5>
-              <div class="project-meta">
-                Primark &middot; SuperDry &middot; Triumph Motorcycles
-              </div>
-              <p>
-                Production supply chain and classification systems serving major
-                UK and international brands. First greenfield project:
-                sustainability reporting for Primark's SCAP fibre-origin
-                programme.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Tech Stack -->
-  <section id="techstack" data-aos="fade-up">
-    <div class="container">
-      <h2 class="section-heading text-center">Tech</h2>
-      <p class="section-subheading text-center">
-        What I reach for most. I pick up new tools fast.
-      </p>
-      <div class="row justify-content-center g-4">
+      <ol class="m-0 grid list-none grid-cols-1 gap-x-6 gap-y-10 p-0 min-[460px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
         {
-          [
-            ["dotnetcore/dotnetcore-original", ".NET"],
-            ["csharp/csharp-original", "C#"],
-            ["typescript/typescript-original", "TypeScript"],
-            ["angularjs/angularjs-original", "Angular"],
-            ["react/react-original", "React"],
-            ["python/python-original", "Python"],
-            ["nodejs/nodejs-original", "Node.js"],
-            ["azure/azure-original", "Azure"],
-            ["docker/docker-original", "Docker"],
-            ["postgresql/postgresql-original", "PostgreSQL"],
-            ["microsoftsqlserver/microsoftsqlserver-plain", "SQL Server"],
-          ].map(([icon, label]) => (
-            <div class="col-4 col-sm-3 col-md-2 text-center">
-              <img
-                src={`https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${icon}.svg`}
-                alt={label}
-                class="tech-icon"
-              />
-              <div class="tech-label-text">{label}</div>
+          route.map((stop) => (
+            <li class="flex flex-col gap-2.5">
+              <Print name={stop.print} class="mb-1.5" />
+              <p class={label}>{stop.when}</p>
+              <h3 class={itemTitle}>{stop.title}</h3>
+              <p class="m-0 text-[0.9rem] leading-relaxed">{stop.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section id="work" class="flex flex-col gap-12">
+      <div class="flex flex-col gap-5">
+        <SectionHeading text="What I build at work" />
+        <p class={intro}>
+          Eleven years at CORE (UK) Ltd, now TariffTel, building customs classification software: the
+          systems large companies use to work out how every product they sell is classified at the border.
+          Clients have ranged from Primark to Triumph Motorcycles.
+        </p>
+        <ol class="m-0 mt-2 flex list-none flex-wrap gap-x-12 gap-y-2 p-0 font-sans text-[0.85rem]">
+          {
+            roles.map(({ when, role }) => (
+              <li>
+                <span class="font-bold text-link tabular-nums">{when}</span> {role}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+
+      <article class="grid items-center gap-8 md:grid-cols-12">
+        <div class="relative md:col-span-7">
+          <div
+            aria-hidden="true"
+            class="halftone ink absolute top-[58%] left-[70%] aspect-square w-[30%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+          >
+          </div>
+          <Print name="classify" plate={false} class="relative" />
+        </div>
+        <div class="flex flex-col gap-3 md:col-span-5">
+          <p class={label}>2022–present</p>
+          <h3 class={featureTitle}>TariffTel 2.0</h3>
+          <p class="m-0 text-[1.1rem] text-ink-soft italic">Customs classification, redesigned and rebuilt from the ground up.</p>
+          <p class="m-0">
+            A new product rather than a port of the old one, now used by large retailers like Pepco. It comes
+            in two parts, and while I work mainly on TTVerified, it's a small team and we all do a bit of
+            everything.
+          </p>
+          <dl class="m-0 mt-1 grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            <div class="flex flex-col gap-1 border-t-2 border-ink-strong pt-2.5">
+              <dt class="font-sans text-[0.9rem] font-extrabold">TTVerified</dt>
+              <dd class="m-0 text-[0.9rem] leading-normal">
+                For businesses that need classifications they can rely on, backed by data curated by our in-house
+                customs team.
+              </dd>
             </div>
+            <div class="flex flex-col gap-1 border-t-2 border-ink-line pt-2.5">
+              <dt class="font-sans text-[0.9rem] font-extrabold">TTExplore</dt>
+              <dd class="m-0 text-[0.9rem] leading-normal">
+                For anyone. AI suggests a classification, with a score for how likely it is to be right.
+              </dd>
+            </div>
+          </dl>
+          <p class="stack m-0">.NET 8/10, Angular 19, Clean Architecture, CQRS, SignalR, Microsoft Entra ID, Azure</p>
+        </div>
+      </article>
+
+      <div class="grid gap-x-10 gap-y-12 md:grid-cols-2">
+        {
+          workProjects.map((project) => (
+            <article class="grid items-start gap-5 sm:grid-cols-[9rem_minmax(0,1fr)]">
+              <Print name={project.print} class="max-w-[16rem]" />
+              <div class="flex flex-col gap-1.5">
+                <h3 class={itemTitle}>{project.title}</h3>
+                <p class="m-0 text-[0.92rem] leading-relaxed">{project.body}</p>
+                <p class="stack m-0">{project.stack}</p>
+              </div>
+            </article>
           ))
         }
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Side Projects -->
-  <section
-    id="projects"
-    class="alt-bg"
-    style="background-color: var(--bg-light)"
-    data-aos="fade-up"
-  >
-    <div class="container">
-      <h2 class="section-heading text-center">Side Projects</h2>
-      <p class="section-subheading text-center">
-        Things I build outside of work to explore new stacks and ideas.
-      </p>
-      <div class="row g-4 justify-content-center">
-        <div class="col-md-6 col-lg-3">
-          <div class="side-project-card">
-            <h5>DevSync</h5>
-            <div class="tech-label">
-              Next.js 16 &middot; PostgreSQL &middot; Prisma &middot; NextAuth
-            </div>
-            <p>
-              Multi-tenant snippet manager with team collaboration, RBAC,
-              full-text search, GitHub OAuth, email invitations, and subscription
-              tiers. Dockerized and production-ready.
-            </p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="side-project-card">
-            <h5>CodeMop</h5>
-            <div class="tech-label">Python &middot; FastAPI &middot; PostgreSQL</div>
-            <p>
-              AI code review tool. Hooks into GitHub PRs via webhooks and suggests
-              improvements automatically.
-            </p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="side-project-card">
-            <h5>EV Route Optimizer</h5>
-            <div class="tech-label">Node.js &middot; React 19 &middot; Leaflet</div>
-            <p>
-              Full-stack EV journey planner. Express backend with GraphHopper and
-              OpenChargeMap; React frontend with interactive maps.
-            </p>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="side-project-card">
-            <h5>EV Fleet Platform</h5>
-            <div class="tech-label">
-              .NET 8 &middot; Python &middot; Google OR-Tools
-            </div>
-            <p>
-              Polyglot microservices. .NET fleet management API paired with a
-              Python/Flask optimization engine for vehicle routing.
-            </p>
-          </div>
-        </div>
+    <section id="projects" class="flex flex-col gap-12">
+      <div class="flex flex-col gap-5">
+        <SectionHeading text="What I build for fun" />
+        <p class={intro}>
+          Side projects are where I try the stacks I don't get to use at work. One of them is turning into a
+          real product.
+        </p>
       </div>
-    </div>
-  </section>
 
-  <!-- What I Bring -->
-  <section id="approach" data-aos="fade-up">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <h2 class="section-heading text-center">What I Bring</h2>
-          <p class="section-subheading text-center">
-            How colleagues and clients describe working with me.
+      <article class="grid items-center gap-8 md:grid-cols-12">
+        <div class="flex flex-col gap-3 md:col-span-5">
+          <p class={label}>Free early access</p>
+          <h3 class={featureTitle}>Dayworks</h3>
+          <p class="m-0 text-[1.1rem] text-ink-soft italic">Brief the day. Book the hours. Sign off the diary.</p>
+          <p class="m-0">
+            Site paperwork for UK construction teams. A friend of mine is a site engineer, and I'm building this
+            with his input to fix a problem he has every day: the same hours typed up again and again across
+            spreadsheets, labour sheets and site diaries.
           </p>
-          <div class="bring-item">
-            <div class="bring-icon"><i class="bi bi-box-seam"></i></div>
-            <div>
-              <h5>Ship complete products</h5>
-              <p>
-                Database to UI, auth to deployment, working solo or in a team. I
-                own the full stack and deliver working software.
-              </p>
-            </div>
-          </div>
-          <div class="bring-item">
-            <div class="bring-icon"><i class="bi bi-building"></i></div>
-            <div>
-              <h5>Design systems that last</h5>
-              <p>
-                Clean Architecture, CQRS, modular boundaries, tested and
-                documented. I think about what happens in two years, not just two
-                sprints.
-              </p>
-            </div>
-          </div>
-          <div class="bring-item">
-            <div class="bring-icon"><i class="bi bi-wrench-adjustable"></i></div>
-            <div>
-              <h5>Pick up anything</h5>
-              <p>
-                C#, TypeScript, Python, React, Node. I'm not attached to a stack.
-                Whatever the problem needs, I'll learn it and ship it.
-              </p>
-            </div>
-          </div>
-          <div class="bring-item">
-            <div class="bring-icon"><i class="bi bi-lightning"></i></div>
-            <div>
-              <h5>Move fast, don't cut corners</h5>
-              <p>
-                Docker, CI/CD, automated tests, and structured logging from day
-                one. Speed and quality aren't a trade-off.
-              </p>
-            </div>
-          </div>
+          <p class="m-0">
+            With Dayworks the team is briefed in the morning, hours are booked on a phone through the shift,
+            and the diary is signed off and locked at the end of the day. The labour sheets and weekly returns
+            write themselves. I'm building it on my own, it's open for early access now, and the first company
+            is getting set up for a trial.
+          </p>
+          <p class="stack m-0">Next.js, Supabase, Drizzle, Tailwind, Resend, Vercel</p>
+          <a href="https://dayworks.build" target="_blank" rel="noopener" class="link self-start font-sans">
+            Visit dayworks.build
+          </a>
         </div>
-      </div>
-    </div>
-  </section>
+        <div class="md:col-span-7">
+          <Print name="dayworks" plate={false} />
+        </div>
+      </article>
 
-  <!-- Contact -->
-  <section id="contact" data-aos="fade-up">
-    <div class="container">
-      <h2 class="section-heading text-center">Get in touch</h2>
-      <p class="section-subheading text-center">
-        Have a project or question? I'd like to hear from you.
-      </p>
-      <div class="row justify-content-center">
-        <div class="col-lg-6">
-          <div class="card p-4">
-            <form
-              action="https://formspree.io/f/xldlbqyj"
-              method="POST"
-              class="contact-form"
-            >
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="name" class="form-label">Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="name"
-                    name="name"
-                    placeholder="Your name"
-                    required
-                    autocomplete="name"
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label for="email" class="form-label">Email</label>
-                  <input
-                    type="email"
-                    class="form-control"
-                    id="email"
-                    name="email"
-                    placeholder="you@email.com"
-                    required
-                    autocomplete="email"
-                  />
-                </div>
-                <div class="col-12">
-                  <label for="message" class="form-label">Message</label>
-                  <textarea
-                    class="form-control"
-                    id="message"
-                    name="message"
-                    rows="5"
-                    placeholder="Type your message here..."
-                    required></textarea>
-                </div>
-              </div>
-              <button type="submit" class="btn btn-submit w-100 mt-4">
-                Send Message
-              </button>
-            </form>
-            <div id="thankYouCard" style="display: none">
-              <div class="card border-0 p-4 mt-3">
-                <div class="card-body text-center">
-                  <i
-                    class="bi bi-check-circle-fill display-4 mb-3"
-                    style="color: var(--deep-teal)"></i>
-                  <h5 class="mb-2">Thank you for your message!</h5>
-                  <p class="mb-0" style="color: rgba(255,255,255,0.7)">
-                    I'll get back to you as soon as possible.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="text-center mt-4">
-              <p class="mb-0" style="color: rgba(255,255,255,0.5); font-size: 0.95rem">
-                Or email me directly:
-                <a href="mailto:greg@kempgt.com" class="accent-link">greg@kempgt.com</a>
-              </p>
-            </div>
-          </div>
-        </div>
+      <div class="grid gap-x-7 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          sideProjects.map((project) => (
+            <article class="flex flex-col gap-2.5">
+              <Print name={project.print} class="mb-1.5" />
+              <h3 class={itemTitle}>{project.title}</h3>
+              <p class="m-0 text-[0.9rem] leading-relaxed">{project.body}</p>
+              <p class="stack m-0">{project.stack}</p>
+            </article>
+          ))
+        }
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section class="flex flex-col gap-7" aria-labelledby="outside-title">
+      <h2 id="outside-title" class="m-0 font-sans text-[1.65rem] leading-tight font-black [font-stretch:115%]">
+        Outside work
+      </h2>
+      <ul class="m-0 grid list-none grid-cols-2 gap-6 p-0 lg:grid-cols-4">
+        {
+          interests.map(({ print, label: name }) => (
+            <li class="flex flex-col gap-2">
+              <Print name={print} />
+              <span class="font-sans text-[0.85rem] font-bold">{name}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section id="contact" class="grid items-start gap-x-8 gap-y-10 md:grid-cols-12">
+      <div class="flex flex-col gap-5 md:col-span-5">
+        <SectionHeading text="Say hello" />
+        <p class="m-0 text-[1.1rem] text-ink-soft">
+          Hiring, collaborating, or curious about any of the above? Send a message, or email me at
+          <a href="mailto:greg@kempgt.com" class="link">greg@kempgt.com</a>.
+        </p>
+      </div>
+      <div class="md:col-span-6 md:col-start-7">
+        <ContactForm />
+      </div>
+    </section>
+  </div>
 </BaseLayout>
+
+<style>
+  .halftone {
+    background-image: radial-gradient(circle, var(--ink-glow) 46%, transparent 48%);
+    background-size: 9px 9px;
+  }
+</style>

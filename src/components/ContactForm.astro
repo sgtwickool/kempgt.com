@@ -1,0 +1,84 @@
+---
+const field =
+  "w-full rounded-[4px] border-[1.5px] border-ink bg-paper px-3 py-2.5 font-sans text-[0.9rem] text-ink placeholder:text-muted";
+---
+
+<div class="font-sans">
+  <form
+    action="https://formspree.io/f/xldlbqyj"
+    method="POST"
+    data-contact-form
+    class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2"
+  >
+    <div class="flex flex-col gap-1.5">
+      <label for="contact-name" class="text-[0.8rem] font-semibold">Name</label>
+      <input id="contact-name" name="name" type="text" required autocomplete="name" class={field} />
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label for="contact-email" class="text-[0.8rem] font-semibold">Email</label>
+      <input id="contact-email" name="email" type="email" required autocomplete="email" class={field} />
+    </div>
+    <div class="flex flex-col gap-1.5 sm:col-span-2">
+      <label for="contact-message" class="text-[0.8rem] font-semibold">Message</label>
+      <textarea id="contact-message" name="message" rows="5" required class:list={[field, "resize-y"]}></textarea>
+    </div>
+    <div class="flex flex-wrap items-center gap-4 sm:col-span-2">
+      <button type="submit" class="button cursor-pointer disabled:cursor-wait disabled:opacity-70">
+        Send message
+      </button>
+      <p data-contact-error role="alert" class="m-0 text-[0.85rem] text-ink" hidden></p>
+    </div>
+  </form>
+
+  <div data-contact-sent tabindex="-1" class="rounded-[4px] border-[1.5px] border-ink-strong p-5" hidden>
+    <p class="m-0 text-[1.05rem] font-bold">Message sent.</p>
+    <p class="m-0 mt-1 font-serif text-ink-soft">Thanks for getting in touch. I'll reply by email.</p>
+  </div>
+</div>
+
+<script>
+  const fallback =
+    "Your message didn't send. Check your connection and try again, or email greg@kempgt.com.";
+
+  function bindContactForm() {
+    const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = "true";
+    const error = document.querySelector<HTMLElement>("[data-contact-error]")!;
+    const sent = document.querySelector<HTMLElement>("[data-contact-sent]")!;
+    const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      error.hidden = true;
+      button.disabled = true;
+      button.textContent = "Sending…";
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { Accept: "application/json" },
+        });
+        if (response.ok) {
+          form.hidden = true;
+          sent.hidden = false;
+          sent.focus();
+          return;
+        }
+        const data = await response.json().catch(() => ({}));
+        const messages = Array.isArray(data.errors)
+          ? data.errors.map((e: { message?: string }) => e.message).filter(Boolean)
+          : [];
+        error.textContent = messages.length ? messages.join(" ") : fallback;
+        error.hidden = false;
+      } catch {
+        error.textContent = fallback;
+        error.hidden = false;
+      } finally {
+        button.disabled = false;
+        button.textContent = "Send message";
+      }
+    });
+  }
+  document.addEventListener("astro:page-load", bindContactForm);
+</script>

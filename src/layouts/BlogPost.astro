@@ -8,9 +8,10 @@ export interface Props {
   tags: string[];
   summary: string;
   math: boolean;
+  slug: string;
 }
 
-const { title, date, author, tags, summary, math } = Astro.props;
+const { title, date, tags, summary, math, slug } = Astro.props;
 
 const formattedDate = date.toLocaleDateString("en-GB", {
   day: "numeric",
@@ -21,30 +22,23 @@ const isoDate = date.toISOString().split("T")[0];
 ---
 
 <BaseLayout title={`${title} | Greg Kemp`} description={summary} math={math}>
-  <article class="blog-post">
-    <div class="container">
-      <div class="blog-container mx-auto">
-        <a href="/blog" class="blog-back">&larr; All posts</a>
-        <header class="blog-post-header" data-aos="fade-up">
-          <p class="blog-post-meta">
-            <time datetime={isoDate}>{formattedDate}</time>
-            <span class="mx-1">·</span>
-            <span>{author}</span>
-          </p>
-          <h1 class="blog-post-title">{title}</h1>
-          {
-            tags.length > 0 && (
-              <div class="blog-tags">
-                {tags.map((tag) => (
-                  <span class="blog-tag">{tag}</span>
-                ))}
-              </div>
-            )
-          }
-        </header>
-        <div class="blog-content" data-aos="fade-up" data-aos-delay="100">
-          <slot />
-        </div>
+  <article class="mx-auto max-w-6xl px-5 pt-8 sm:px-8 md:pt-14">
+    <div class="mx-auto max-w-[42rem]">
+      <a href="/blog" class="link font-sans text-[0.85rem]">All posts</a>
+      <header class="mt-8 mb-10 flex flex-col gap-4">
+        <p class="m-0 font-sans text-[0.8rem] font-semibold text-link">
+          <time datetime={isoDate}>{formattedDate}</time>
+        </p>
+        <h1
+          transition:name={`post-${slug}`}
+          class="m-0 text-[clamp(2.1rem,5vw,3.2rem)] leading-[1.02] font-black tracking-[-0.025em] [font-stretch:112%]"
+        >
+          {title}
+        </h1>
+        {tags.length > 0 && <p class="m-0 font-sans text-[0.8rem] text-muted">Tagged {tags.join(", ")}</p>}
+      </header>
+      <div class="prose prose-article max-w-none">
+        <slot />
       </div>
     </div>
   </article>

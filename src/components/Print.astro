@@ -1,0 +1,39 @@
+---
+// One risograph print from src/lib/art.ts, drawn as inline SVG.
+import { prints, type PrintName } from "../lib/art";
+
+interface Props {
+  name: PrintName;
+  /** Small prints sit on a slightly darker paper stock. */
+  plate?: boolean;
+  class?: string;
+}
+
+const { name, plate = true, class: className } = Astro.props;
+const { width, height, layers } = prints[name];
+const ink = { line: "var(--ink-line)", strong: "var(--ink-strong)", glow: "var(--ink-glow)" };
+---
+
+<svg
+  viewBox={`0 0 ${width} ${height}`}
+  class:list={["block h-auto w-full", plate && "rounded-[3px] bg-plate", className]}
+  aria-hidden="true"
+  focusable="false"
+>
+  <g filter="url(#rough)">
+    {
+      layers.map((layer) =>
+        layer.width ? (
+          <path
+            class="ink"
+            d={layer.d}
+            style={`fill:${layer.knockout ? "var(--plate)" : "none"};stroke:${ink[layer.ink]};stroke-width:${layer.width};stroke-linejoin:round${layer.round ? ";stroke-linecap:round" : ""}`}
+          />
+        ) : (
+          <path class="ink" d={layer.d} style={`fill:${ink[layer.ink]}`} />
+        ),
+      )
+    }
+  </g>
+  {plate && <rect class="grain" width={width} height={height} />}
+</svg>

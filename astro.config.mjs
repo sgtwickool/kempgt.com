@@ -1,5 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import tailwindcss from "@tailwindcss/vite";
+import icon from "astro-icon";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
@@ -7,11 +9,18 @@ import rehypeKatex from "rehype-katex";
 // so the site is the bare domain with no base path.
 export default defineConfig({
   site: "https://gregkemp.dev",
+  integrations: [icon()],
+  vite: {
+    plugins: [tailwindcss()],
+  },
   markdown: {
     remarkPlugins: [remarkMath],
     rehypePlugins: [rehypeKatex],
     shikiConfig: {
-      theme: "github-dark",
+      // Both themes are emitted as CSS variables; global.css picks one
+      // based on the active colour theme.
+      themes: { light: "github-light", dark: "github-dark" },
+      defaultColor: false,
       wrap: true,
     },
   },

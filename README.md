@@ -1,6 +1,7 @@
-# kempgt.com
+# gregkemp.dev
 
-My personal website and blog, built with [Astro](https://astro.build/).
+My personal website, built with [Astro](https://astro.build/) and
+[Tailwind CSS](https://tailwindcss.com/).
 
 ## Develop
 
@@ -11,25 +12,49 @@ npm run build    # production build to dist/
 npm run preview  # serve the production build locally
 ```
 
+## Design
+
+The site is styled like a risograph print. The page stays calm (paper and
+ink), and the colour lives in generative prints that sit beside each piece of
+work. Every print is drawn from a small piece of maths tied to its subject:
+tokamak flux surfaces, a climbing topo map, a customs classification tree, a
+day's labour allocation, and so on.
+
+- Prints use three inks: `line` (fluorescent pink), `strong` (blue) and `glow`
+  (yellow). They overprint with `mix-blend-mode: multiply` on light paper and
+  `screen` on dark paper.
+- All the art is computed at build time in `src/lib/art.ts` and ships as
+  inline SVG, so it adds no client-side JavaScript.
+- Colour tokens live in `src/styles/global.css`. Dark mode swaps the token
+  values, so components only use the token names (`bg-paper`, `text-ink`,
+  `text-ink-strong`, ...).
+- Type: Archivo (variable width) for headings and UI, Source Serif 4 for text.
+
 ## Structure
 
 ```
-public/                Static assets served as-is (CSS, JS, images, CV, CNAME).
-src/layouts/           BaseLayout (head/nav/footer) and BlogPost layout.
-src/pages/             index.astro (homepage), blog/ (listing + posts).
-src/content/blog/      Blog posts as markdown with frontmatter.
-src/content.config.ts  Blog collection schema.
-astro.config.mjs       Site config, including remark-math + rehype-katex for maths.
+public/                    Static files served as-is (CV, profile photo, favicon, CNAME).
+src/lib/art.ts             Generators for the hero poster and every print.
+src/components/            Header, footer, theme toggle, poster hero, prints,
+                           section headings and the contact form.
+src/layouts/               BaseLayout (head, shared SVG filters, theme script) and BlogPost.
+src/pages/index.astro      The homepage, including all of its copy.
+src/pages/404.astro        Not-found page.
+src/pages/_blog/           The blog, currently switched off (see below).
+src/content/blog/          Blog posts as markdown with frontmatter.
 ```
 
-The homepage markup and `assets/css/style.css` are the existing hand-built
-design. The blog reuses the same design system (colours, navbar, footer) and
-adds an editorial reading layer (Newsreader serif for prose).
+To add a print, write a generator in `src/lib/art.ts`, add it to the object
+returned by `buildPrints()`, and use it with `<Print name="..." />`.
 
-## Writing a blog post
+## The blog
 
-Add a markdown file to `src/content/blog/`. The filename becomes the URL slug
-(`my-post.md` -> `/blog/my-post`). Frontmatter:
+The blog is switched off for now. Astro doesn't build anything under a page
+folder that starts with `_`, so `src/pages/_blog/` and the posts in
+`src/content/blog/` are kept but not published. To publish it again, rename
+`src/pages/_blog` to `src/pages/blog` and add a Blog link to `SiteHeader.astro`.
+
+Post frontmatter:
 
 ```yaml
 ---
@@ -43,13 +68,10 @@ draft: false # set true to hide from the listing and build
 ```
 
 Maths uses LaTeX syntax: inline `$x^2$`, display `$$ ... $$`. Code blocks get
-syntax highlighting via Shiki automatically.
+syntax highlighting via Shiki in both themes.
 
 ## Deployment
 
 Pushes to `master` trigger `.github/workflows/deploy.yml`, which builds the site
-and deploys to GitHub Pages. The custom domain is set via `public/CNAME`.
-
-> One-time setup: in the repo's **Settings -> Pages**, set the build source to
-> **GitHub Actions** (not "Deploy from a branch"). The old setup served the repo
-> root directly; Astro builds to `dist/`, so the Actions workflow is required.
+and deploys it to GitHub Pages. The custom domain is gregkemp.dev, set in the
+repository's Pages settings and mirrored in `public/CNAME`.

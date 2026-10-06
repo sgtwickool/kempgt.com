@@ -1,0 +1,225 @@
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource-variable/source-serif-4/opsz.css";
+@import "@fontsource-variable/source-serif-4/opsz-italic.css";
+
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Theme is a class on <html>, set before paint by the inline script in
+   BaseLayout so there's no flash of the wrong theme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Colour tokens. The page itself stays calm (paper and ink); colour lives in
+   the risograph prints, which use three inks: line (fluorescent pink),
+   strong (blue) and glow (yellow). Inks overprint with --print-blend. */
+:root {
+  --paper: #f4f4f1;
+  --plate: #ebeae4;
+  --ink: #232838;
+  --ink-soft: #4a5060;
+  --muted: #5d6373;
+  --rule: #d9d9d3;
+  --link: #005c94;
+  --ink-line: #ff48b0;
+  --ink-strong: #0078bf;
+  --ink-glow: #ffe800;
+  --print-blend: multiply;
+  color-scheme: light;
+}
+
+/* On dark paper, multiplied ink would vanish, so the inks brighten and
+   overprint with screen instead. */
+.dark {
+  --paper: #191c26;
+  --plate: #222636;
+  --ink: #e8e8e2;
+  --ink-soft: #c4c7d0;
+  --muted: #9ba0ae;
+  --rule: #343949;
+  --link: #7cc4f5;
+  --ink-line: #ff5cb8;
+  --ink-strong: #3d9fe6;
+  --ink-glow: #d9c400;
+  --print-blend: screen;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-plate: var(--plate);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-link: var(--link);
+  --color-ink-line: var(--ink-line);
+  --color-ink-strong: var(--ink-strong);
+  --color-ink-glow: var(--ink-glow);
+
+  --font-sans: "Archivo Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Source Serif 4 Variable", Georgia, serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+@layer base {
+  html {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    font-size: 112.5%; /* 18px body */
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  [id] {
+    scroll-margin-top: 1.5rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-sans);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--ink-line) 35%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink-strong);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  /* Inks in a print overprint each other, like a risograph. */
+  .ink {
+    mix-blend-mode: var(--print-blend);
+  }
+
+  /* Print grain: dark specks on light paper, light specks on dark. */
+  .grain {
+    filter: url(#grain-dark);
+    mix-blend-mode: multiply;
+  }
+  .dark .grain {
+    filter: url(#grain-light);
+    mix-blend-mode: screen;
+  }
+
+  .link {
+    color: var(--link);
+    font-weight: 600;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 0.2em;
+    text-decoration-color: color-mix(in oklab, var(--link) 45%, transparent);
+    transition: text-decoration-color 150ms;
+  }
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* Small sans line under a project: what it's built with. */
+  .stack {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    padding: 0.7rem 1.15rem;
+    background-color: var(--ink);
+    color: var(--paper);
+    transition: background-color 150ms;
+  }
+  .button:hover {
+    background-color: color-mix(in oklab, var(--ink) 85%, var(--ink-strong));
+  }
+
+  /* Long-form reading (blog posts), wired to the colour tokens. */
+  .prose-article {
+    --tw-prose-body: var(--ink);
+    --tw-prose-headings: var(--ink);
+    --tw-prose-lead: var(--ink-soft);
+    --tw-prose-links: var(--link);
+    --tw-prose-bold: var(--ink);
+    --tw-prose-counters: var(--muted);
+    --tw-prose-bullets: var(--rule);
+    --tw-prose-hr: var(--rule);
+    --tw-prose-quotes: var(--ink);
+    --tw-prose-quote-borders: var(--ink-line);
+    --tw-prose-captions: var(--muted);
+    --tw-prose-code: var(--ink);
+    --tw-prose-pre-code: inherit;
+    --tw-prose-pre-bg: var(--plate);
+    --tw-prose-th-borders: var(--rule);
+    --tw-prose-td-borders: var(--rule);
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+  .prose-article :where(h2, h3) {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .prose-article :where(code):not(pre code) {
+    font-size: 0.85em;
+    font-weight: 400;
+    background-color: var(--plate);
+    border-radius: 3px;
+    padding: 0.1em 0.3em;
+  }
+  .prose-article :where(code):not(pre code)::before,
+  .prose-article :where(code):not(pre code)::after {
+    content: none;
+  }
+  .prose-article :where(pre) {
+    font-size: 0.8rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+  }
+  .prose-article .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+}
+
+/* Shiki emits light and dark colours as variables (see astro.config.mjs). */
+.astro-code,
+.astro-code span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+  font-style: var(--shiki-light-font-style);
+  font-weight: var(--shiki-light-font-weight);
+}
+.dark .astro-code,
+.dark .astro-code span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+  font-style: var(--shiki-dark-font-style);
+  font-weight: var(--shiki-dark-font-weight);
+}
