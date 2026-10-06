@@ -6,7 +6,7 @@
 - **Email**: greg@kempgt.com
 - **GitHub**: github.com/sgtwickool
 - **LinkedIn**: linkedin.com/in/kempgt
-- **Website**: kempgt.com
+- **Website**: gregkemp.dev
 
 ## Who I Am
 
@@ -108,7 +108,7 @@ Polyglot microservices for fleet optimisation.
 - **Optimisation Engine**: Python, Flask, Google OR-Tools (vehicle routing)
 - **Infrastructure**: Docker Compose orchestration
 
-### kempgt.com
+### gregkemp.dev
 Personal portfolio website. Bootstrap 5, vanilla JS, dark mode, Formspree contact form. Hosted on GitHub Pages.
 
 ## Education
