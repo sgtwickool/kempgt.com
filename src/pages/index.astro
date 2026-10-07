@@ -1,10 +1,12 @@
 ---
+import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PosterHero from "../components/PosterHero.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import Print from "../components/Print.astro";
 import ContactForm from "../components/ContactForm.astro";
 import type { PrintName } from "../lib/art";
+import portrait from "../assets/profile.jpg";
 
 interface Item {
   print: PrintName;
@@ -132,16 +134,33 @@ const featureTitle =
   <PosterHero />
 
   <div class:list={[wrap, "flex flex-col gap-24 pt-10 md:gap-36 md:pt-12"]}>
-    <div class="grid items-end gap-x-8 gap-y-6 md:grid-cols-12">
-      <p class="m-0 text-[1.2rem] leading-relaxed text-ink-soft md:col-span-8">
-        I'm Greg Kemp, a senior full-stack engineer in Budapest. I trained as a mechanical engineer and
-        worked on fusion at ITER before software took over. For eleven years I've been building products
-        for brands like Primark, SuperDry and Pepco, and these days I spend most of my time designing and
-        building TariffTel 2.0.
-      </p>
-      <div class="flex flex-wrap items-center gap-x-6 gap-y-3 font-sans md:col-span-4 md:justify-end">
-        <a href="#work" class="button">See my work</a>
-        <a href="#contact" class="link">Get in touch</a>
+    <div class="grid items-center gap-x-8 gap-y-8 md:grid-cols-12">
+      <figure class="m-0 flex max-w-[15rem] flex-col gap-3 md:col-span-3">
+        <div class="relative">
+          <div aria-hidden="true" class="absolute inset-0 translate-x-[7px] translate-y-[6px] rounded-[3px] bg-ink-line"></div>
+          <Image
+            src={portrait}
+            alt="Greg Kemp in sunglasses, holding a small tortoise"
+            widths={[240, 480]}
+            sizes="(min-width: 768px) 15rem, 60vw"
+            class="relative block aspect-square w-full rounded-[3px] object-cover"
+          />
+        </div>
+        <figcaption class="font-sans text-[0.78rem] leading-snug text-muted">
+          Rescuing a tortoise from a road in Croatia.
+        </figcaption>
+      </figure>
+      <div class="flex flex-col gap-7 md:col-span-8 md:col-start-5">
+        <p class="m-0 text-[1.2rem] leading-relaxed text-ink-soft">
+          I'm Greg Kemp, a senior full-stack engineer in Budapest. I trained as a mechanical engineer and
+          worked on fusion at ITER before software took over. For eleven years I've been building products
+          for brands like Primark, SuperDry and Pepco, and these days I spend most of my time designing and
+          building TariffTel 2.0.
+        </p>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 font-sans">
+          <a href="#work" class="button">See my work</a>
+          <a href="#contact" class="link">Get in touch</a>
+        </div>
       </div>
     </div>
 

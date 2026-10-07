@@ -33,7 +33,8 @@ day's labour allocation, and so on.
 ## Structure
 
 ```
-public/                    Static files served as-is (CV, profile photo, favicon, CNAME).
+public/                    Static files served as-is (CV, favicon, CNAME).
+src/assets/                Images that Astro optimises (the profile photo).
 src/lib/art.ts             Generators for the hero poster and every print.
 src/components/            Header, footer, theme toggle, poster hero, prints,
                            section headings and the contact form.
