@@ -4,8 +4,36 @@
 // "line" (fluorescent pink), "strong" (blue) or "glow" (yellow). Inks
 // overprint each other (see .ink in global.css), and every print is drawn
 // from a small piece of maths tied to the work it sits beside.
+//
+// Layers can also carry a motion, driven by scrolling (see Print.astro):
+// lines draw in as a print scrolls up the screen and undraw as it scrolls
+// back, gears turn with the scroll, strings vibrate with it.
 
 export type Ink = "line" | "strong" | "glow";
+
+type Pt = [number, number];
+
+export interface Motion {
+  /**
+   * draw: the stroke draws itself in. fade, slide, stamp: the layer appears.
+   * These play out as the print scrolls from the bottom of the screen to
+   * just above the middle, timed by delay and duration (in relative units).
+   *
+   * spin, vibrate, blink, emit: repeat as long as the print is being
+   * scrolled past, `cycles` times per screen height of scrolling.
+   */
+  kind: "draw" | "fade" | "slide" | "stamp" | "spin" | "vibrate" | "blink" | "emit";
+  delay?: number;
+  duration?: number;
+  /** Turns (spin) or repeats (vibrate, blink, emit) per screen of scroll. */
+  cycles?: number;
+  /** Pivot for spin and vibrate, in viewBox units. */
+  origin?: Pt;
+  /** Spin anticlockwise. */
+  reverse?: boolean;
+  /** Where an emitted shape travels to, relative to where it starts. */
+  to?: Pt;
+}
 
 export interface Layer {
   d: string;
@@ -15,6 +43,7 @@ export interface Layer {
   round?: boolean;
   /** Fill the shape with the plate colour as well as stroking it. */
   knockout?: boolean;
+  motion?: Motion;
 }
 
 export interface Print {
@@ -22,8 +51,6 @@ export interface Print {
   height: number;
   layers: Layer[];
 }
-
-type Pt = [number, number];
 
 const TAU = 2 * Math.PI;
 const f = (v: number) => (Math.round(v * 10) / 10).toString();
@@ -110,29 +137,38 @@ function gear(cx: number, cy: number, r: number, tooth: number, teeth: number, r
   );
 }
 
+/** A charged particle gyrating along a field line. */
+function gyration(from: number, to: number, y0: number, slope: number, rx: number, ry: number) {
+  const pts: Pt[] = [];
+  for (let t = 0; from + 7.4 * t <= to; t += 0.075) {
+    const bx = from + 7.4 * t;
+    pts.push([bx + rx * Math.cos(t), y0 + slope * bx + ry * Math.sin(t)]);
+  }
+  return path(pts);
+}
+
 /* ---------- Hero poster ---------- */
 
-export function heroPoster() {
-  const [cx, cy, s] = [900, 300, 205];
+/**
+ * The homepage poster. "wide" is the desktop composition; "tall" is
+ * recomposed for phones rather than cropped, so the tokamak stays whole.
+ */
+export function heroPoster(layout: "wide" | "tall") {
+  const wide = layout === "wide";
+  const [width, height] = wide ? [1280, 660] : [600, 820];
+  const [cx, cy, s] = wide ? [900, 300, 205] : [350, 290, 170];
   let rings = "";
   for (let i = 1; i < 12; i++) rings += fluxSurface(cx, cy, s, 0.92 - i * 0.075);
 
-  // A charged particle gyrating along a field line, drifting across the sheet.
-  const gyro: Pt[] = [];
-  for (let n = 0; n <= 2400; n++) {
-    const t = n * 0.075;
-    const bx = -60 + 7.4 * t;
-    const by = 120 + 0.16 * bx;
-    gyro.push([bx + 34 * Math.cos(t), by + 20 * Math.sin(t)]);
-  }
-
   return {
-    width: 1280,
-    height: 660,
-    topo: topo(300, 520, 360, 15, 1.3, 0.8, [9, -8]),
+    width,
+    height,
+    topo: wide
+      ? topo(300, 520, 360, 15, 1.3, 0.8, [9, -8])
+      : topo(170, 690, 300, 14, 1.2, 0.8, [8, -9]),
     rings,
     wall: fluxSurface(cx, cy, s, 0.92),
-    gyro: path(gyro),
+    gyro: wide ? gyration(-60, 1340, 120, 0.16, 34, 20) : gyration(-60, 660, 120, 0.42, 28, 16),
     descent: fluxDescent(cx, cy, s),
     minimum: [cx + C0 * s, cy] as Pt,
   };
@@ -143,10 +179,11 @@ export function heroPoster() {
 function classificationTree(w: number, h: number, rootR: number, nodeR: number): Layer[] {
   // Chapter, heading, subheading: the strong-ink branch is the verified
   // answer, and each leaf's dot is sized by how confident a suggestion is.
-  const link = ([x1, y1]: Pt, [x2, y2]: Pt) => {
+  const curve = ([x1, y1]: Pt, [x2, y2]: Pt) => {
     const mx = (x1 + x2) / 2;
-    return `M${f(x1)} ${f(y1)}C${f(mx)} ${f(y1)} ${f(mx)} ${f(y2)} ${f(x2)} ${f(y2)}`;
+    return `C${f(mx)} ${f(y1)} ${f(mx)} ${f(y2)} ${f(x2)} ${f(y2)}`;
   };
+  const link = (a: Pt, b: Pt) => `M${f(a[0])} ${f(a[1])}${curve(a, b)}`;
   const xs = [w * 0.08, w * 0.33, w * 0.58, w * 0.84];
   const root: Pt = [xs[0], h / 2];
   const l1: Pt[] = [0.2, 0.5, 0.8].map((v) => [xs[1], h * v]);
@@ -159,35 +196,43 @@ function classificationTree(w: number, h: number, rootR: number, nodeR: number):
   const confidence = [0.2, 0.35, 0.1, 0.45, 0.25, 0.3, 0.55, 1, 0.15, 0.4, 0.3, 0.2];
   const chosen = { l1: 1, l2: 3, leaf: 7 };
 
-  let a = "";
-  let b = "";
-  let glow = "";
+  let branches = "";
+  let nodes = "";
+  let dots = "";
   l1.forEach((n, i) => {
-    if (i === chosen.l1) b += link(root, n);
-    else a += link(root, n) + circle(n[0], n[1], nodeR);
+    if (i === chosen.l1) return;
+    branches += link(root, n);
+    nodes += circle(n[0], n[1], nodeR);
   });
   l2.forEach((n, i) => {
-    const edge = link(l1[n.parent], n.p);
-    if (i === chosen.l2) b += edge;
-    else a += edge + circle(n.p[0], n.p[1], nodeR);
+    if (i === chosen.l2) return;
+    branches += link(l1[n.parent], n.p);
+    nodes += circle(n.p[0], n.p[1], nodeR);
   });
   leaves.forEach((n, i) => {
-    const edge = link(l2[n.parent].p, n.p);
-    if (i === chosen.leaf) b += edge;
-    else a += edge;
-    glow += circle(n.p[0], n.p[1], nodeR + confidence[i] * nodeR * 2.6);
+    if (i !== chosen.leaf) branches += link(l2[n.parent].p, n.p);
+    dots += circle(n.p[0], n.p[1], nodeR + confidence[i] * nodeR * 2.6);
   });
   const pick = leaves[chosen.leaf].p;
-  b +=
+  // One continuous path, so it traces from root to answer as it draws.
+  const answer =
+    `M${f(root[0])} ${f(root[1])}` +
+    curve(root, l1[chosen.l1]) +
+    curve(l1[chosen.l1], l2[chosen.l2].p) +
+    curve(l2[chosen.l2].p, pick);
+  const marks =
     circle(root[0], root[1], rootR) +
     circle(l1[chosen.l1][0], l1[chosen.l1][1], nodeR) +
     circle(l2[chosen.l2].p[0], l2[chosen.l2].p[1], nodeR) +
     circle(pick[0], pick[1], nodeR * 1.6);
 
+  const big = w > 300;
   return [
-    { d: glow, ink: "glow" },
-    { d: a, ink: "line", width: w > 300 ? 2 : 1.6 },
-    { d: b, ink: "strong", width: w > 300 ? 3.4 : 2.6, round: true },
+    { d: dots, ink: "glow", motion: { kind: "fade", delay: 1.7, duration: 0.7 } },
+    { d: branches, ink: "line", width: big ? 2 : 1.6, motion: { kind: "draw", duration: 1.3 } },
+    { d: nodes, ink: "line", width: big ? 2 : 1.6, motion: { kind: "fade", delay: 0.8 } },
+    { d: answer, ink: "strong", width: big ? 3.4 : 2.6, round: true, motion: { kind: "draw", delay: 0.6, duration: 1.3 } },
+    { d: marks, ink: "strong", width: big ? 3.4 : 2.6, motion: { kind: "stamp", delay: 1.8, duration: 0.5 } },
   ];
 }
 
@@ -243,9 +288,10 @@ function lumpyLoss(): Layer[] {
   }
 
   return [
-    { d: circle(px(0.62), py(-0.14), 9), ink: "glow" },
-    { d: contours, ink: "line", width: 1.5 },
-    { d: path(pts) + circle(px(-1.35), py(0.85), 4), ink: "strong", width: 2.4, round: true },
+    { d: circle(px(0.62), py(-0.14), 9), ink: "glow", motion: { kind: "stamp", delay: 2.7, duration: 0.5 } },
+    { d: contours, ink: "line", width: 1.5, motion: { kind: "fade", duration: 0.8 } },
+    { d: circle(px(-1.35), py(0.85), 4), ink: "strong", width: 2.4 },
+    { d: path(pts), ink: "strong", width: 2.4, round: true, motion: { kind: "draw", delay: 0.4, duration: 2.4 } },
   ];
 }
 
@@ -279,10 +325,17 @@ function dayworksSheet(): Layer[] {
     }
   });
   return [
-    { d: flagged + circle(452, 282, 34), ink: "glow" },
-    { d: grid, ink: "line", width: 1.6 },
-    { d: bars, ink: "strong", width: 15, round: true },
-    { d: circle(452, 282, 42) + "M434 283L447 296L472 266", ink: "line", width: 4.5, round: true },
+    { d: flagged, ink: "glow", motion: { kind: "fade", delay: 2, duration: 0.5 } },
+    { d: circle(452, 282, 34), ink: "glow", motion: { kind: "stamp", delay: 2.6, duration: 0.45 } },
+    { d: grid, ink: "line", width: 1.6, motion: { kind: "draw", duration: 1 } },
+    { d: bars, ink: "strong", width: 15, round: true, motion: { kind: "draw", delay: 0.5, duration: 1.6 } },
+    {
+      d: circle(452, 282, 42) + "M434 283L447 296L472 266",
+      ink: "line",
+      width: 4.5,
+      round: true,
+      motion: { kind: "stamp", delay: 2.6, duration: 0.45 },
+    },
   ];
 }
 
@@ -300,7 +353,6 @@ function buildPrints() {
     if (i === 2) codeLine += seg;
     else codeStrong += seg;
   });
-  codeLine += `M60 ${26 + 6 * 14 - 6}v12`;
 
   let laser = "";
   for (let j = 0; j < 3; j++) {
@@ -310,6 +362,14 @@ function buildPrints() {
     const [th, rho] = [u * 24, 22 * (1 - 0.72 * u)];
     return [100 + u * 82 + rho * Math.cos(th), 70 - u * 12 + 0.6 * rho * Math.sin(th)];
   });
+  // A radiation-reaction photon: a short wave packet thrown off the electron.
+  const [px0, py0] = spiral[spiral.length - 1];
+  const photon = path(
+    sample(30, (u) => {
+      const s = u * 18;
+      return [px0 + 0.45 * s + 2.4 * Math.sin(s * 1.3) * 0.87, py0 - 0.87 * s + 2.4 * Math.sin(s * 1.3) * 0.45];
+    }),
+  );
 
   let tokRings = "";
   for (const r of [0.78, 0.64, 0.5, 0.36, 0.22]) tokRings += fluxSurface(98, 70, 44, r);
@@ -352,134 +412,186 @@ function buildPrints() {
   const depot: Pt = [100, 70];
   const stops: Pt[] = [[40, 30], [72, 20], [60, 62], [30, 104], [150, 30], [176, 70], [152, 112], [108, 122]];
 
-  let strA = "";
-  let strB = "";
+  // Harmonics 1 to 4 of a string, each vibrating about its own rest line,
+  // the nth harmonic n times as fast as the first.
+  const harmonics: Layer[] = [];
+  let restLines = "";
   for (let h = 1; h <= 4; h++) {
     const mid = 22 + (h - 1) * 32;
-    const envelope =
-      path(sample(80, (u) => [12 + 176 * u, mid - 11 * Math.sin(h * Math.PI * u)])) +
-      path(sample(80, (u) => [12 + 176 * u, mid + 11 * Math.sin(h * Math.PI * u)]));
-    if (h % 2) strA += envelope;
-    else strB += envelope;
+    restLines += `M12 ${mid}H188`;
+    harmonics.push({
+      d: path(sample(80, (u) => [12 + 176 * u, mid - 11 * Math.sin(h * Math.PI * u)])),
+      ink: h % 2 ? "line" : "strong",
+      width: 1.8,
+      motion: { kind: "vibrate", origin: [100, mid], cycles: 3 * h },
+    });
   }
 
   return {
     // How I got here
     gears: small([
       { d: circle(84, 72, 30), ink: "glow" },
-      { d: gear(84, 72, 40, 6, 12, 0) + circle(84, 72, 11), ink: "line", width: 2 },
-      { d: gear(146, 98, 22, 5, 8, 0.45) + circle(146, 98, 5), ink: "strong", width: 2.2, round: true },
-    ]),
-    tokamak: small([
-      { d: fluxSurface(98, 70, 44, 0.36), ink: "glow" },
-      { d: tokRings, ink: "line", width: 1.6 },
-      { d: fluxSurface(98, 70, 44, 0.95), ink: "strong", width: 4 },
-    ]),
-    crag: small([
-      { d: topo(92, 80, 50, 8, 1.35, 0.78, [3, -3]), ink: "line", width: 1.5 },
       {
-        d: path(routePts) + routePts.slice(1).map(([x, y]) => circle(x, y, 2.5)).join(""),
+        d: gear(84, 72, 40, 6, 12, 0) + circle(84, 72, 11),
+        ink: "line",
+        width: 2,
+        motion: { kind: "spin", origin: [84, 72], cycles: 1 },
+      },
+      {
+        // 8 teeth against 12, so it turns 1.5 times as far the other way.
+        d: gear(146, 98, 22, 5, 8, 0.45) + circle(146, 98, 5),
         ink: "strong",
         width: 2.2,
         round: true,
+        motion: { kind: "spin", origin: [146, 98], cycles: 1.5, reverse: true },
+      },
+    ]),
+    tokamak: small([
+      { d: fluxSurface(98, 70, 44, 0.36), ink: "glow", motion: { kind: "fade", delay: 1.4, duration: 0.8 } },
+      { d: tokRings, ink: "line", width: 1.6, motion: { kind: "draw", delay: 0.5, duration: 1.4 } },
+      { d: fluxSurface(98, 70, 44, 0.95), ink: "strong", width: 4, motion: { kind: "draw", duration: 1.1 } },
+    ]),
+    crag: small([
+      { d: topo(92, 80, 50, 8, 1.35, 0.78, [3, -3]), ink: "line", width: 1.5, motion: { kind: "draw", duration: 1.3 } },
+      { d: path(routePts), ink: "strong", width: 2.2, round: true, motion: { kind: "draw", delay: 0.8, duration: 1.6 } },
+      {
+        d: routePts.slice(1).map(([x, y]) => circle(x, y, 2.5)).join(""),
+        ink: "strong",
+        width: 2.2,
+        motion: { kind: "fade", delay: 2.2, duration: 0.5 },
       },
     ]),
     code: small([
-      { d: rect(22, 46, 128, 16), ink: "glow" },
-      { d: codeLine, ink: "line", width: 6, round: true },
-      { d: codeStrong, ink: "strong", width: 6, round: true },
+      { d: rect(22, 46, 128, 16), ink: "glow", motion: { kind: "slide", delay: 1.4, duration: 0.4 } },
+      { d: codeLine, ink: "line", width: 6, round: true, motion: { kind: "draw", delay: 0.5, duration: 0.6 } },
+      { d: codeStrong, ink: "strong", width: 6, round: true, motion: { kind: "draw", duration: 1.2 } },
+      { d: `M60 ${26 + 6 * 14 - 6}v12`, ink: "line", width: 3, round: true, motion: { kind: "blink", cycles: 4 } },
     ]),
     laser: small([
-      { d: circle(184, 56, 9), ink: "glow" },
-      { d: laser, ink: "line", width: 1.8 },
-      { d: path(spiral), ink: "strong", width: 1.8, round: true },
+      { d: circle(184, 56, 9), ink: "glow", motion: { kind: "stamp", delay: 2.1, duration: 0.4 } },
+      { d: laser, ink: "line", width: 1.8, motion: { kind: "draw", duration: 0.9 } },
+      { d: path(spiral), ink: "strong", width: 1.8, round: true, motion: { kind: "draw", delay: 0.6, duration: 1.6 } },
+      { d: photon, ink: "line", width: 1.6, round: true, motion: { kind: "emit", cycles: 3, to: [10, -40] } },
     ]),
     classifySmall: small(classificationTree(200, 140, 5, 3)),
 
     // Work
     classify: large(classificationTree(520, 340, 10, 6)),
     lanes: small([
-      { d: rect(118, 28, 82, 24), ink: "glow" },
-      { d: "M70 70C100 70 100 40 130 40L196 40M70 70C100 70 100 100 130 100L196 100", ink: "line", width: 2.4 },
+      { d: rect(118, 28, 82, 24), ink: "glow", motion: { kind: "fade", delay: 1, duration: 0.5 } },
+      {
+        d: "M8 70L70 70M70 70C100 70 100 40 130 40L196 40M70 70C100 70 100 100 130 100L196 100",
+        ink: "line",
+        width: 2.4,
+        motion: { kind: "draw", duration: 1.2 },
+      },
       {
         d:
-          "M8 70L70 70" +
           square(146, 40) + square(168, 40) + square(190, 40) +
           circle(146, 100, 5) + circle(168, 100, 5) + circle(190, 100, 5),
         ink: "strong",
         width: 2.4,
+        motion: { kind: "slide", delay: 1, duration: 0.6 },
       },
     ]),
     functions: small([
-      { d: fnDots, ink: "glow" },
-      { d: fnIdle, ink: "line", width: 1.8 },
-      { d: fnFiring, ink: "strong", width: 2.4 },
+      { d: fnDots, ink: "glow", motion: { kind: "fade", duration: 0.6 } },
+      { d: fnIdle, ink: "line", width: 1.8, motion: { kind: "fade", delay: 0.4, duration: 0.6 } },
+      { d: fnFiring, ink: "strong", width: 2.4, motion: { kind: "blink", cycles: 3 } },
     ]),
     fibres: small([
-      { d: circle(122, 70, 9), ink: "glow" },
-      { d: fibres, ink: "line", width: 1.8 },
-      { d: thread, ink: "strong", width: 2.4 },
+      { d: circle(122, 70, 9), ink: "glow", motion: { kind: "stamp", delay: 1.2, duration: 0.4 } },
+      { d: fibres, ink: "line", width: 1.8, motion: { kind: "draw", duration: 1.3 } },
+      { d: thread, ink: "strong", width: 2.4, motion: { kind: "draw", delay: 1.2, duration: 1 } },
     ]),
     grow: small([
-      { d: rect(88, 24, 88, 88), ink: "glow" },
-      { d: rect(24, 66, 40, 40), ink: "line", width: 2.4 },
-      { d: rect(80, 16, 88, 88) + "M94 40h58M94 56h44M94 72h64M94 88h36", ink: "strong", width: 2.4, round: true },
+      { d: rect(88, 24, 88, 88), ink: "glow", motion: { kind: "fade", delay: 1.3, duration: 0.6 } },
+      { d: rect(24, 66, 40, 40), ink: "line", width: 2.4, motion: { kind: "draw", duration: 0.7 } },
+      {
+        d: rect(80, 16, 88, 88) + "M94 40h58M94 56h44M94 72h64M94 88h36",
+        ink: "strong",
+        width: 2.4,
+        round: true,
+        motion: { kind: "draw", delay: 0.6, duration: 1 },
+      },
     ]),
 
     // Side projects
     dayworks: large(dayworksSheet()),
     snippets: small([
-      { d: rect(30, 26, 104, 62), ink: "glow" },
-      { d: rect(30, 26, 104, 62) + rect(48, 42, 104, 62), ink: "line", width: 2.2 },
-      { d: rect(66, 58, 104, 62) + "M80 78h44M90 92h54M80 106h30", ink: "strong", width: 4, round: true },
+      { d: rect(30, 26, 104, 62), ink: "glow", motion: { kind: "fade", duration: 0.5 } },
+      { d: rect(30, 26, 104, 62) + rect(48, 42, 104, 62), ink: "line", width: 2.2, motion: { kind: "slide", delay: 0.2, duration: 0.6 } },
+      {
+        d: rect(66, 58, 104, 62) + "M80 78h44M90 92h54M80 106h30",
+        ink: "strong",
+        width: 4,
+        round: true,
+        motion: { kind: "slide", delay: 0.6, duration: 0.6 },
+      },
     ]),
     diff: small([
-      { d: "M128 126Q162 64 198 42L198 66Q168 88 142 130Z", ink: "glow" },
-      { d: removed, ink: "line", width: 6, round: true },
-      { d: added, ink: "strong", width: 6, round: true },
+      { d: "M128 126Q162 64 198 42L198 66Q168 88 142 130Z", ink: "glow", motion: { kind: "slide", delay: 1.4, duration: 0.5 } },
+      { d: removed, ink: "line", width: 6, round: true, motion: { kind: "draw", duration: 0.8 } },
+      { d: added, ink: "strong", width: 6, round: true, motion: { kind: "draw", delay: 0.6, duration: 0.9 } },
     ]),
     route: small([
-      { d: chargers.map(([x, y]) => circle(x, y, 9)).join(""), ink: "glow" },
+      {
+        d: chargers.map(([x, y]) => circle(x, y, 9)).join(""),
+        ink: "glow",
+        motion: { kind: "fade", delay: 1.8, duration: 0.5 },
+      },
       {
         d: "M0 40C60 30 120 60 200 44M0 104C70 122 140 90 200 112M60 0C70 50 50 90 70 140M150 0C140 60 160 100 140 140",
         ink: "line",
         width: 1.6,
+        motion: { kind: "draw", duration: 1.2 },
       },
       {
-        d: path([[14, 122], [52, 96], [72, 72], [110, 62], [142, 40], [178, 24]]) +
-          chargers.map(([x, y]) => circle(x, y, 4.5)).join(""),
+        d: path([[14, 122], [52, 96], [72, 72], [110, 62], [142, 40], [178, 24]]),
         ink: "strong",
         width: 2.6,
         round: true,
+        motion: { kind: "draw", delay: 0.4, duration: 1.6 },
+      },
+      {
+        d: chargers.map(([x, y]) => circle(x, y, 4.5)).join(""),
+        ink: "strong",
+        width: 2.6,
+        motion: { kind: "stamp", delay: 1.8, duration: 0.4 },
       },
     ]),
     fleet: small([
-      { d: rect(91, 61, 18, 18), ink: "glow" },
+      { d: rect(91, 61, 18, 18), ink: "glow", motion: { kind: "stamp", duration: 0.4 } },
       {
         d:
           path([depot, stops[2], stops[3], stops[0], stops[1], depot]) +
           path([depot, stops[4], stops[5], stops[6], stops[7], depot]),
         ink: "line",
         width: 2,
+        motion: { kind: "draw", delay: 0.3, duration: 1.8 },
       },
-      { d: stops.map(([x, y]) => circle(x, y, 5)).join(""), ink: "strong", width: 2.4, knockout: true },
+      {
+        d: stops.map(([x, y]) => circle(x, y, 5)).join(""),
+        ink: "strong",
+        width: 2.4,
+        knockout: true,
+        motion: { kind: "fade", delay: 0.2, duration: 0.6 },
+      },
     ]),
 
     // Outside work
     cave: small([
-      { d: circle(102, 66, 8), ink: "glow" },
-      { d: topo(100, 76, 72, 6, 1.15, 0.42, [0, 0]), ink: "line", width: 1.6 },
+      { d: circle(102, 66, 8), ink: "glow", motion: { kind: "blink", cycles: 2 } },
+      { d: topo(100, 76, 72, 6, 1.15, 0.42, [0, 0]), ink: "line", width: 1.6, motion: { kind: "draw", duration: 1.4 } },
       {
         d: path(sample(40, (u) => [100 + 3 * Math.sin((6 + u * 56) / 5), 6 + u * 56])),
         ink: "strong",
         width: 2.2,
         round: true,
+        motion: { kind: "draw", delay: 0.6, duration: 1.2 },
       },
     ]),
-    strings: small([
-      { d: strA, ink: "line", width: 1.8 },
-      { d: strB, ink: "strong", width: 1.8 },
-    ]),
+    strings: small([{ d: restLines, ink: "strong", width: 0.8 }, ...harmonics]),
     loss: small(lumpyLoss()),
   } satisfies Record<string, Print>;
 }

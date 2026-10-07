@@ -135,14 +135,20 @@ const featureTitle =
 
   <div class:list={[wrap, "flex flex-col gap-24 pt-10 md:gap-36 md:pt-12"]}>
     <div class="grid items-center gap-x-8 gap-y-8 md:grid-cols-12">
-      <figure class="m-0 flex max-w-[15rem] flex-col gap-3 md:col-span-3">
-        <div class="relative">
-          <div aria-hidden="true" class="absolute inset-0 translate-x-[7px] translate-y-[6px] rounded-[3px] bg-ink-line"></div>
+      <figure
+        class="order-last m-0 flex items-center gap-4 md:order-none md:col-span-3 md:max-w-[15rem] md:flex-col md:items-start md:gap-3"
+      >
+        <div class="relative w-24 shrink-0 md:w-full">
+          <div
+            aria-hidden="true"
+            class="absolute inset-0 translate-x-[4px] translate-y-[4px] rounded-[3px] bg-ink-line md:translate-x-[7px] md:translate-y-[6px]"
+          >
+          </div>
           <Image
             src={portrait}
             alt="Greg Kemp in sunglasses, holding a small tortoise"
             widths={[240, 480]}
-            sizes="(min-width: 768px) 15rem, 60vw"
+            sizes="(min-width: 768px) 15rem, 6rem"
             class="relative block aspect-square w-full rounded-[3px] object-cover"
           />
         </div>

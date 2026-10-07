@@ -1,6 +1,10 @@
 ---
-// One risograph print from src/lib/art.ts, drawn as inline SVG.
-import { prints, type PrintName } from "../lib/art";
+// One risograph print from src/lib/art.ts, drawn as inline SVG. Layers with a
+// motion are driven by scrolling: the script below sets --p (0 when the print
+// enters at the bottom of the screen, 1 once it's just above the middle) and
+// --t (screens scrolled since it entered). Without the script, or with
+// reduced motion, --p falls back to 1 and --t to 0: the finished print.
+import { prints, type PrintName, type Layer } from "../lib/art";
 
 interface Props {
   name: PrintName;
@@ -12,28 +16,133 @@ interface Props {
 const { name, plate = true, class: className } = Astro.props;
 const { width, height, layers } = prints[name];
 const ink = { line: "var(--ink-line)", strong: "var(--ink-strong)", glow: "var(--ink-glow)" };
+
+const oneOff = new Set(["draw", "fade", "slide", "stamp"]);
+const timeline = Math.max(
+  1,
+  ...layers.map(({ motion: m }) => (m && oneOff.has(m.kind) ? (m.delay ?? 0) + (m.duration ?? 1) : 0)),
+);
+const animated = layers.some((layer) => layer.motion);
+const n = (v: number) => +v.toFixed(4);
+
+function motionStyle(layer: Layer): string[] {
+  const m = layer.motion;
+  if (!m) return [];
+  if (oneOff.has(m.kind)) {
+    // This layer's share of the scroll: from `start` to `start + span` of --p.
+    const start = n((m.delay ?? 0) / timeline);
+    const span = n((m.duration ?? 1) / timeline);
+    const k = `--k:clamp(0, calc((var(--p, 1) - ${start}) / ${span}), 1)`;
+    switch (m.kind) {
+      case "draw":
+        return [k, "stroke-dasharray:1", "stroke-dashoffset:calc(1 - var(--k))"];
+      case "fade":
+        return [k, "opacity:var(--k)"];
+      case "slide":
+        return [k, "opacity:var(--k)", "transform:translateX(calc((1 - var(--k)) * -12px))"];
+      default:
+        return [
+          k,
+          "opacity:var(--k)",
+          "transform-box:fill-box",
+          "transform-origin:center",
+          "transform:scale(calc(1 + (1 - var(--k)) * 0.7)) rotate(calc((1 - var(--k)) * -14deg))",
+        ];
+    }
+  }
+  const phase = `calc(var(--t, 0) * ${m.cycles ?? 1} * 360deg)`;
+  const origin = m.origin ? [`transform-origin:${m.origin[0]}px ${m.origin[1]}px`] : [];
+  switch (m.kind) {
+    case "spin":
+      return [...origin, `transform:rotate(calc(${phase} * ${m.reverse ? -1 : 1}))`];
+    case "vibrate":
+      return [...origin, `transform:scaleY(cos(${phase}))`];
+    case "blink":
+      return [`opacity:calc(0.62 + 0.38 * cos(${phase}))`];
+    default: {
+      const [x, y] = m.to ?? [0, 0];
+      return [
+        `--u:mod(calc(var(--t, 0) * ${m.cycles ?? 1}), 1)`,
+        `transform:translate(calc(var(--u) * ${x}px), calc(var(--u) * ${y}px))`,
+        "opacity:calc(1 - var(--u))",
+      ];
+    }
+  }
+}
+
+function style(layer: Layer) {
+  const paint = layer.width
+    ? [
+        `fill:${layer.knockout ? "var(--plate)" : "none"}`,
+        `stroke:${ink[layer.ink]}`,
+        `stroke-width:${layer.width}`,
+        "stroke-linejoin:round",
+        layer.round ? "stroke-linecap:round" : "",
+      ]
+    : [`fill:${ink[layer.ink]}`];
+  return [...paint, ...motionStyle(layer)].filter(Boolean).join(";");
+}
 ---
 
 <svg
   viewBox={`0 0 ${width} ${height}`}
-  class:list={["block h-auto w-full", plate && "rounded-[3px] bg-plate", className]}
+  class:list={["print block h-auto w-full", plate && "rounded-[3px] bg-plate", className]}
+  data-animate={animated ? "" : undefined}
   aria-hidden="true"
   focusable="false"
 >
   <g filter="url(#rough)">
     {
-      layers.map((layer) =>
-        layer.width ? (
-          <path
-            class="ink"
-            d={layer.d}
-            style={`fill:${layer.knockout ? "var(--plate)" : "none"};stroke:${ink[layer.ink]};stroke-width:${layer.width};stroke-linejoin:round${layer.round ? ";stroke-linecap:round" : ""}`}
-          />
-        ) : (
-          <path class="ink" d={layer.d} style={`fill:${ink[layer.ink]}`} />
-        ),
-      )
+      layers.map((layer) => (
+        <path
+          class="ink"
+          d={layer.d}
+          pathLength={layer.motion?.kind === "draw" ? 1 : undefined}
+          style={style(layer)}
+        />
+      ))
     }
   </g>
   {plate && <rect class="grain" width={width} height={height} />}
 </svg>
+
+<script>
+  let unbind: AbortController | undefined;
+
+  function bindScrollPrints() {
+    unbind?.abort();
+    // "motion" is set in BaseLayout unless the visitor prefers reduced motion.
+    if (!document.documentElement.classList.contains("motion")) return;
+    const prints = Array.from(document.querySelectorAll<SVGSVGElement>(".print[data-animate]"));
+    if (!prints.length) return;
+    unbind = new AbortController();
+
+    const last = new WeakMap<Element, string>();
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const vh = window.innerHeight;
+      for (const print of prints) {
+        const { top, height } = print.getBoundingClientRect();
+        // p: 0 as the print enters at the bottom, 1 once its middle is 45% of
+        // the way down the screen. t: screens scrolled since it entered,
+        // frozen once it's left the top, so loops stop off screen.
+        const p = Math.min(1, Math.max(0, (vh - top) / (0.55 * vh + height / 2)));
+        const t = Math.min(Math.max((vh - top) / vh, 0), (vh + height) / vh);
+        const value = `${p.toFixed(4)} ${t.toFixed(4)}`;
+        if (last.get(print) === value) continue;
+        last.set(print, value);
+        print.style.setProperty("--p", p.toFixed(4));
+        print.style.setProperty("--t", t.toFixed(4));
+      }
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", schedule, { passive: true, signal: unbind.signal });
+    window.addEventListener("resize", schedule, { signal: unbind.signal });
+    update();
+  }
+
+  document.addEventListener("astro:page-load", bindScrollPrints);
+</script>

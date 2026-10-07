@@ -47,10 +47,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     }
 
     <!-- Apply the saved or system theme before first paint, and again on the
-         incoming document during each client-side navigation. -->
+         incoming document during each client-side navigation. Also opt in to
+         the prints' scroll animations, unless reduced motion is requested. -->
     <script is:inline>
       (() => {
-        const applyTheme = (doc) => {
+        const applyRootClasses = (doc) => {
           let stored = null;
           try {
             stored = localStorage.getItem("theme");
@@ -59,9 +60,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
             ? stored === "dark"
             : matchMedia("(prefers-color-scheme: dark)").matches;
           doc.documentElement.classList.toggle("dark", dark);
+          const motion =
+            "IntersectionObserver" in window &&
+            !matchMedia("(prefers-reduced-motion: reduce)").matches;
+          doc.documentElement.classList.toggle("motion", motion);
         };
-        applyTheme(document);
-        document.addEventListener("astro:before-swap", (e) => applyTheme(e.newDocument));
+        applyRootClasses(document);
+        document.addEventListener("astro:before-swap", (e) => applyRootClasses(e.newDocument));
       })();
     </script>
 

@@ -1,41 +1,55 @@
 ---
 // The homepage poster: a climbing topo map, tokamak flux surfaces, a charged
 // particle gyrating along a field line and a gradient-descent path, printed
-// in three inks, with the headline overprinted on top.
+// in three inks, with the headline overprinted on top. Phones get their own
+// tall composition rather than a crop of the wide one.
 import { heroPoster } from "../lib/art";
 
-const art = heroPoster();
+const posters = [
+  { art: heroPoster("wide"), show: "hidden sm:block" },
+  { art: heroPoster("tall"), show: "sm:hidden" },
+];
 const headline =
-  "m-0 font-sans text-[clamp(2.3rem,8.4vw,7rem)] leading-[0.9] font-black tracking-[-0.035em] [font-stretch:125%]";
+  "m-0 font-sans text-[11.5vw] leading-[0.9] font-black tracking-[-0.035em] [font-stretch:125%] sm:text-[clamp(2.3rem,8.4vw,7rem)]";
 ---
 
-<section class="relative h-[min(660px,82vw)] min-h-[340px] overflow-hidden" aria-labelledby="hero-title">
+<section
+  class="relative h-[min(600px,72svh)] min-h-[440px] overflow-hidden sm:h-[min(660px,82vw)] sm:min-h-[340px]"
+  aria-labelledby="hero-title"
+>
   <div
     aria-hidden="true"
-    class="halftone ink absolute top-[6%] right-[7%] aspect-square w-[min(340px,46%)] rounded-full"
+    class="halftone ink absolute top-[3%] right-[-8%] aspect-square w-[58%] rounded-full sm:top-[6%] sm:right-[7%] sm:w-[min(340px,46%)]"
   >
   </div>
-  <svg
-    viewBox={`0 0 ${art.width} ${art.height}`}
-    preserveAspectRatio="xMidYMid slice"
-    class="absolute inset-0 h-full w-full"
-    aria-hidden="true"
-    focusable="false"
-  >
-    <g filter="url(#rough)">
-      <path class="ink" d={art.topo} style="fill:none;stroke:var(--ink-strong);stroke-width:1.6;opacity:.85" />
-      <path class="ink" d={art.rings} style="fill:none;stroke:var(--ink-line);stroke-width:2" />
-      <path class="ink" d={art.wall} style="fill:none;stroke:var(--ink-line);stroke-width:5" />
-      <path class="ink" d={art.gyro} style="fill:none;stroke:var(--ink);stroke-width:1.3;opacity:.6" />
-      <path class="ink descent" d={art.descent} pathLength="1" />
-      <circle class="ink minimum" cx={art.minimum[0]} cy={art.minimum[1]} r="10" />
-    </g>
-    <rect class="grain opacity-50" width={art.width} height={art.height} />
-  </svg>
+  {
+    posters.map(({ art, show }) => (
+      <svg
+        viewBox={`0 0 ${art.width} ${art.height}`}
+        preserveAspectRatio="xMidYMid slice"
+        class:list={["absolute inset-0 h-full w-full", show]}
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g filter="url(#rough)">
+          <path class="ink" d={art.topo} style="fill:none;stroke:var(--ink-strong);stroke-width:1.6;opacity:.85" />
+          <path class="ink" d={art.rings} style="fill:none;stroke:var(--ink-line);stroke-width:2" />
+          <path class="ink" d={art.wall} style="fill:none;stroke:var(--ink-line);stroke-width:5" />
+          <path class="ink" d={art.gyro} style="fill:none;stroke:var(--ink);stroke-width:1.3;opacity:.6" />
+          <path class="ink descent" d={art.descent} pathLength="1" />
+          <circle class="ink minimum" cx={art.minimum[0]} cy={art.minimum[1]} r="10" />
+        </g>
+        <rect class="grain opacity-50" width={art.width} height={art.height} />
+      </svg>
+    ))
+  }
 
   <div class="absolute inset-x-0 bottom-[6%] mx-auto max-w-6xl px-5 sm:px-8">
     <div class="relative">
-      <p aria-hidden="true" class:list={[headline, "ink absolute inset-0 translate-x-[5px] translate-y-[4px] text-ink-line dark:mix-blend-normal"]}>
+      <p
+        aria-hidden="true"
+        class:list={[headline, "ink absolute inset-0 translate-x-[4px] translate-y-[3px] text-ink-line dark:mix-blend-normal sm:translate-x-[5px] sm:translate-y-[4px]"]}
+      >
         From fusion<br />to full stack.
       </p>
       <h1 id="hero-title" class:list={[headline, "ink relative text-ink-strong dark:mix-blend-normal"]}>
@@ -64,8 +78,7 @@ const headline =
     fill: var(--ink-strong);
   }
 
-  /* The page's one piece of unprompted motion: the descent path draws itself
-     in, then the minimum lands. */
+  /* The descent path draws itself in on load, then the minimum lands. */
   @media (prefers-reduced-motion: no-preference) {
     .descent {
       stroke-dashoffset: 1;
