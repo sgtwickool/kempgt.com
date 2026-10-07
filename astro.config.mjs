@@ -9,7 +9,8 @@ import rehypeKatex from "rehype-katex";
 // so the site is the bare domain with no base path.
 export default defineConfig({
   site: "https://gregkemp.dev",
-  integrations: [icon()],
+  // Only bundle the icons the site actually uses.
+  integrations: [icon({ include: { lucide: ["menu", "x", "moon", "sun"] } })],
   vite: {
     plugins: [tailwindcss()],
   },

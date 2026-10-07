@@ -10,6 +10,8 @@ npm install
 npm run dev      # local dev server with hot reload
 npm run build    # production build to dist/
 npm run preview  # serve the production build locally
+npm run check    # type-check the project
+npm run format   # format everything with Prettier
 ```
 
 ## Design
@@ -23,8 +25,12 @@ day's labour allocation, and so on.
 - Prints use three inks: `line` (fluorescent pink), `strong` (blue) and `glow`
   (yellow). They overprint with `mix-blend-mode: multiply` on light paper and
   `screen` on dark paper.
-- All the art is computed at build time in `src/lib/art.ts` and ships as
-  inline SVG, so it adds no client-side JavaScript.
+- All the art is computed at build time and ships as inline SVG.
+- Each print tells a small story as you scroll: a climber clips bolts on the
+  way to the summit, a T-shirt is classified node by node. The motion is
+  driven by the scroll position (one small script sets two CSS variables per
+  print), so it rewinds when you scroll back up, and is switched off for
+  anyone who prefers reduced motion.
 - Colour tokens live in `src/styles/global.css`. Dark mode swaps the token
   values, so components only use the token names (`bg-paper`, `text-ink`,
   `text-ink-strong`, ...).
@@ -35,18 +41,29 @@ day's labour allocation, and so on.
 ```
 public/                    Static files served as-is (CV, favicon, CNAME).
 src/assets/                Images that Astro optimises (the profile photo).
-src/lib/art.ts             Generators for the hero poster and every print.
-src/components/            Header, footer, theme toggle, poster hero, prints,
-                           section headings and the contact form.
-src/layouts/               BaseLayout (head, shared SVG filters, theme script) and BlogPost.
 src/pages/index.astro      The homepage, including all of its copy.
 src/pages/404.astro        Not-found page.
 src/pages/_blog/           The blog, currently switched off (see below).
 src/content/blog/          Blog posts as markdown with frontmatter.
+src/layouts/               BaseLayout (head, shared SVG filters, theme script) and BlogPost.
+src/components/            Header, footer, theme toggle, poster hero, prints,
+                           two-ink headings and the contact form.
+src/lib/art/               The generative art:
+  index.ts                   every print, in page order
+  prints/                    the prints for each section of the homepage
+  hero.ts                    the hero poster
+  shapes.ts                  shapes shared between prints (flux surfaces, topo maps, gears)
+  geometry.ts, build.ts      helpers for path data, motions and print sizes
+  style.ts                   turns a print's motions into CSS
+  types.ts
+src/scripts/scroll-prints.ts Drives the prints' motion from the scroll position.
+src/styles/global.css      Colour tokens, fonts and shared styles.
 ```
 
-To add a print, write a generator in `src/lib/art.ts`, add it to the object
-returned by `buildPrints()`, and use it with `<Print name="..." />`.
+To add a print, write a function in the right file under
+`src/lib/art/prints/`, add it to `prints` in `src/lib/art/index.ts`, and use it
+with `<Print name="..." />`. The motion types are documented in
+`src/lib/art/types.ts`.
 
 ## The blog
 
@@ -63,7 +80,7 @@ title: "Post title"
 date: 2026-06-01
 summary: "One-line summary for the listing and meta description."
 tags: [ml, maths]
-math: true   # set true to load KaTeX CSS for $...$ and $$...$$ maths
+math: true # set true to load KaTeX CSS for $...$ and $$...$$ maths
 draft: false # set true to hide from the listing and build
 ---
 ```

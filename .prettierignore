@@ -1,0 +1,7 @@
+dist/
+.astro/
+node_modules/
+package-lock.json
+public/
+# Blog posts are prose; leave their formatting to the writer.
+src/content/

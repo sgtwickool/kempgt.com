@@ -36,7 +36,7 @@ const route: Item[] = [
     body: "A year teaching climbing, until shoulder surgery grounded me and I tried programming to fill the time.",
   },
   {
-    print: "code",
+    print: "editor",
     when: "2014",
     title: "First dev job",
     body: "Joined CORE (UK) Ltd as a junior developer. Eleven years on I'm still there, now as senior developer and architect.",
@@ -63,13 +63,13 @@ const roles = [
 
 const workProjects: Item[] = [
   {
-    print: "lanes",
+    print: "cqrs",
     title: "Master Data Management System",
     body: "A new .NET 10 system with a custom CQRS dispatcher in place of MediatR, and Dapper wherever queries need to be fast.",
     stack: ".NET 10, Angular 19, Tailwind, Dapper",
   },
   {
-    print: "functions",
+    print: "serverless",
     title: "Customs Connect",
     body: "Customs declaration software for Primark. I rebuilt version 2 as a fully serverless app that plugs into classification and supply-chain systems.",
     stack: "Azure Functions, .NET",
@@ -81,7 +81,7 @@ const workProjects: Item[] = [
     stack: "ASP.NET MVC, Azure Functions",
   },
   {
-    print: "grow",
+    print: "appToPlatform",
     title: "TariffTel Essentials and Premium",
     body: "A customs classification web app for individuals, then its business sibling, which I built single-handedly.",
     stack: "Angular, .NET",
@@ -96,13 +96,13 @@ const sideProjects: Item[] = [
     stack: "Next.js 16, PostgreSQL, Prisma, NextAuth",
   },
   {
-    print: "diff",
+    print: "mop",
     title: "CodeMop",
     body: "AI code review. It hooks into GitHub pull requests and suggests improvements automatically.",
     stack: "Python, FastAPI, PostgreSQL",
   },
   {
-    print: "route",
+    print: "evRoute",
     title: "EV Route Optimizer",
     body: "Plans electric car journeys around charging stops, on an interactive map.",
     stack: "Node.js, React 19, Leaflet, GraphHopper, OpenChargeMap",
@@ -118,7 +118,7 @@ const sideProjects: Item[] = [
 const interests: { print: PrintName; label: string }[] = [
   { print: "crag", label: "Climbing" },
   { print: "cave", label: "Caving" },
-  { print: "strings", label: "Guitar" },
+  { print: "guitar", label: "Guitar" },
   { print: "loss", label: "Machine learning" },
 ];
 
@@ -126,8 +126,7 @@ const wrap = "mx-auto max-w-6xl px-5 sm:px-8";
 const intro = "m-0 max-w-[36em] text-[1.1rem] text-ink-soft";
 const label = "m-0 font-sans text-[0.78rem] font-semibold text-link tabular-nums";
 const itemTitle = "m-0 font-sans text-[1.05rem] leading-tight font-extrabold";
-const featureTitle =
-  "m-0 font-sans text-[1.9rem] leading-[1.05] font-black tracking-[-0.02em] [font-stretch:112%]";
+const featureTitle = "m-0 font-sans text-[1.9rem] leading-[1.05] font-black tracking-[-0.02em] [font-stretch:112%]";
 ---
 
 <BaseLayout title="Greg Kemp | Senior Full-Stack Engineer">
@@ -135,15 +134,12 @@ const featureTitle =
 
   <div class:list={[wrap, "flex flex-col gap-24 pt-10 md:gap-36 md:pt-12"]}>
     <div class="grid items-center gap-x-8 gap-y-8 md:grid-cols-12">
-      <figure
-        class="order-last m-0 flex items-center gap-4 md:order-none md:col-span-3 md:max-w-[15rem] md:flex-col md:items-start md:gap-3"
-      >
+      <figure class="order-last m-0 flex items-center gap-4 md:order-none md:col-span-3 md:max-w-[15rem] md:flex-col md:items-start md:gap-3">
         <div class="relative w-24 shrink-0 md:w-full">
           <div
             aria-hidden="true"
             class="absolute inset-0 translate-x-[4px] translate-y-[4px] rounded-[3px] bg-ink-line md:translate-x-[7px] md:translate-y-[6px]"
-          >
-          </div>
+          ></div>
           <Image
             src={portrait}
             alt="Greg Kemp in sunglasses, holding a small tortoise"
@@ -158,14 +154,17 @@ const featureTitle =
       </figure>
       <div class="flex flex-col gap-7 md:col-span-8 md:col-start-5">
         <p class="m-0 text-[1.2rem] leading-relaxed text-ink-soft">
-          I'm Greg Kemp, a senior full-stack engineer in Budapest. I trained as a mechanical engineer and
-          worked on fusion at ITER before software took over. For eleven years I've been building products
-          for brands like Primark, SuperDry and Pepco, and these days I spend most of my time designing and
-          building TariffTel 2.0.
+          I'm Greg Kemp, a senior full-stack engineer in Budapest. I trained as a mechanical engineer and worked on
+          fusion at ITER before software took over. For eleven years I've been building products for brands like
+          Primark, SuperDry and Pepco, and these days I spend most of my time designing and building TariffTel 2.0.
         </p>
         <div class="flex flex-wrap items-center gap-x-6 gap-y-3 font-sans">
-          <a href="#work" class="button">See my work</a>
-          <a href="#contact" class="link">Get in touch</a>
+          <a href="#work" class="button">
+            See my work
+          </a>
+          <a href="#contact" class="link">
+            Get in touch
+          </a>
         </div>
       </div>
     </div>
@@ -173,19 +172,19 @@ const featureTitle =
     <section id="route" class="flex flex-col gap-10">
       <div class="flex flex-col gap-5">
         <SectionHeading text="How I got here" />
-        <p class={intro}>Not a straight line. Physics, a climbing injury and a lot of software, in roughly that order.</p>
+        <p class={intro}>
+          Not a straight line. Physics, a climbing injury and a lot of software, in roughly that order.
+        </p>
       </div>
       <ol class="m-0 grid list-none grid-cols-1 gap-x-6 gap-y-10 p-0 min-[460px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-        {
-          route.map((stop) => (
-            <li class="flex flex-col gap-2.5">
-              <Print name={stop.print} class="mb-1.5" />
-              <p class={label}>{stop.when}</p>
-              <h3 class={itemTitle}>{stop.title}</h3>
-              <p class="m-0 text-[0.9rem] leading-relaxed">{stop.body}</p>
-            </li>
-          ))
-        }
+        {route.map((stop) => (
+          <li class="flex flex-col gap-2.5">
+            <Print name={stop.print} class="mb-1.5" />
+            <p class={label}>{stop.when}</p>
+            <h3 class={itemTitle}>{stop.title}</h3>
+            <p class="m-0 text-[0.9rem] leading-relaxed">{stop.body}</p>
+          </li>
+        ))}
       </ol>
     </section>
 
@@ -193,33 +192,32 @@ const featureTitle =
       <div class="flex flex-col gap-5">
         <SectionHeading text="What I build at work" />
         <p class={intro}>
-          Eleven years at CORE (UK) Ltd, now TariffTel, building customs classification software: the
-          systems large companies use to work out how every product they sell is classified at the border.
-          Clients have ranged from Primark to Triumph Motorcycles.
+          Eleven years at CORE (UK) Ltd, now TariffTel, building customs classification software: the systems large
+          companies use to work out how every product they sell is classified at the border. Clients have ranged from
+          Primark to Triumph Motorcycles.
         </p>
         <ol class="m-0 mt-2 flex list-none flex-wrap gap-x-12 gap-y-2 p-0 font-sans text-[0.85rem]">
-          {
-            roles.map(({ when, role }) => (
-              <li>
-                <span class="font-bold text-link tabular-nums">{when}</span> {role}
-              </li>
-            ))
-          }
+          {roles.map(({ when, role }) => (
+            <li>
+              <span class="font-bold text-link tabular-nums">{when}</span> {role}
+            </li>
+          ))}
         </ol>
       </div>
 
       <article class="grid items-center gap-8 md:grid-cols-12">
         <div class="md:col-span-7">
-          <Print name="classify" plate={false} />
+          <Print name="classification" plate={false} />
         </div>
         <div class="flex flex-col gap-3 md:col-span-5">
           <p class={label}>2022–present</p>
           <h3 class={featureTitle}>TariffTel 2.0</h3>
-          <p class="m-0 text-[1.1rem] text-ink-soft italic">Customs classification, redesigned and rebuilt from the ground up.</p>
+          <p class="m-0 text-[1.1rem] text-ink-soft italic">
+            Customs classification, redesigned and rebuilt from the ground up.
+          </p>
           <p class="m-0">
-            A new product rather than a port of the old one, now used by large retailers like Pepco. It comes
-            in two parts, and while I work mainly on TTVerified, it's a small team and we all do a bit of
-            everything.
+            A new product rather than a port of the old one, now used by large retailers like Pepco. It comes in two
+            parts, and while I work mainly on TTVerified, it's a small team and we all do a bit of everything.
           </p>
           <dl class="m-0 mt-1 grid gap-x-6 gap-y-4 sm:grid-cols-2">
             <div class="flex flex-col gap-1 border-t-2 border-ink-strong pt-2.5">
@@ -241,18 +239,16 @@ const featureTitle =
       </article>
 
       <div class="grid gap-x-10 gap-y-12 md:grid-cols-2">
-        {
-          workProjects.map((project) => (
-            <article class="grid items-start gap-5 sm:grid-cols-[9rem_minmax(0,1fr)]">
-              <Print name={project.print} class="max-w-[16rem]" />
-              <div class="flex flex-col gap-1.5">
-                <h3 class={itemTitle}>{project.title}</h3>
-                <p class="m-0 text-[0.92rem] leading-relaxed">{project.body}</p>
-                <p class="stack m-0">{project.stack}</p>
-              </div>
-            </article>
-          ))
-        }
+        {workProjects.map((project) => (
+          <article class="grid items-start gap-5 sm:grid-cols-[9rem_minmax(0,1fr)]">
+            <Print name={project.print} class="max-w-[16rem]" />
+            <div class="flex flex-col gap-1.5">
+              <h3 class={itemTitle}>{project.title}</h3>
+              <p class="m-0 text-[0.92rem] leading-relaxed">{project.body}</p>
+              <p class="stack m-0">{project.stack}</p>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
 
@@ -260,8 +256,8 @@ const featureTitle =
       <div class="flex flex-col gap-5">
         <SectionHeading text="What I build for fun" />
         <p class={intro}>
-          Side projects are where I try the stacks I don't get to use at work. One of them is turning into a
-          real product.
+          Side projects are where I try the stacks I don't get to use at work. One of them is turning into a real
+          product.
         </p>
       </div>
 
@@ -271,15 +267,15 @@ const featureTitle =
           <h3 class={featureTitle}>Dayworks</h3>
           <p class="m-0 text-[1.1rem] text-ink-soft italic">Brief the day. Book the hours. Sign off the diary.</p>
           <p class="m-0">
-            Site paperwork for UK construction teams. A friend of mine is a site engineer, and I'm building this
-            with his input to fix a problem he has every day: the same hours typed up again and again across
-            spreadsheets, labour sheets and site diaries.
+            Site paperwork for UK construction teams. A friend of mine is a site engineer, and I'm building this with
+            his input to fix a problem he has every day: the same hours typed up again and again across spreadsheets,
+            labour sheets and site diaries.
           </p>
           <p class="m-0">
-            With Dayworks the team is briefed in the morning, hours are booked on a phone through the shift,
-            and the diary is signed off and locked at the end of the day. The labour sheets and weekly returns
-            write themselves. I'm building it on my own, it's open for early access now, and the first company
-            is getting set up for a trial.
+            With Dayworks the team is briefed in the morning, hours are booked on a phone through the shift, and the
+            diary is signed off and locked at the end of the day. The labour sheets and weekly returns write themselves.
+            I'm building it on my own, it's open for early access now, and the first company is getting set up for a
+            trial.
           </p>
           <p class="stack m-0">Next.js, Supabase, Drizzle, Tailwind, Resend, Vercel</p>
           <a href="https://dayworks.build" target="_blank" rel="noopener" class="link self-start font-sans">
@@ -292,16 +288,14 @@ const featureTitle =
       </article>
 
       <div class="grid gap-x-7 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-        {
-          sideProjects.map((project) => (
-            <article class="flex flex-col gap-2.5">
-              <Print name={project.print} class="mb-1.5" />
-              <h3 class={itemTitle}>{project.title}</h3>
-              <p class="m-0 text-[0.9rem] leading-relaxed">{project.body}</p>
-              <p class="stack m-0">{project.stack}</p>
-            </article>
-          ))
-        }
+        {sideProjects.map((project) => (
+          <article class="flex flex-col gap-2.5">
+            <Print name={project.print} class="mb-1.5" />
+            <h3 class={itemTitle}>{project.title}</h3>
+            <p class="m-0 text-[0.9rem] leading-relaxed">{project.body}</p>
+            <p class="stack m-0">{project.stack}</p>
+          </article>
+        ))}
       </div>
     </section>
 
@@ -310,14 +304,12 @@ const featureTitle =
         Outside work
       </h2>
       <ul class="m-0 grid list-none grid-cols-2 gap-6 p-0 lg:grid-cols-4">
-        {
-          interests.map(({ print, label: name }) => (
-            <li class="flex flex-col gap-2">
-              <Print name={print} />
-              <span class="font-sans text-[0.85rem] font-bold">{name}</span>
-            </li>
-          ))
-        }
+        {interests.map(({ print, label: name }) => (
+          <li class="flex flex-col gap-2">
+            <Print name={print} />
+            <span class="font-sans text-[0.85rem] font-bold">{name}</span>
+          </li>
+        ))}
       </ul>
     </section>
 
@@ -326,7 +318,10 @@ const featureTitle =
         <SectionHeading text="Say hello" />
         <p class="m-0 text-[1.1rem] text-ink-soft">
           Hiring, collaborating, or curious about any of the above? Send a message, or email me at
-          <a href="mailto:greg@kempgt.com" class="link">greg@kempgt.com</a>.
+          <a href="mailto:greg@kempgt.com" class="link">
+            greg@kempgt.com
+          </a>
+          .
         </p>
       </div>
       <div class="md:col-span-6 md:col-start-7">
@@ -335,4 +330,3 @@ const featureTitle =
     </section>
   </div>
 </BaseLayout>
-

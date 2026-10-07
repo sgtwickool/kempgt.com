@@ -11,15 +11,21 @@ const field =
     class="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2"
   >
     <div class="flex flex-col gap-1.5">
-      <label for="contact-name" class="text-[0.8rem] font-semibold">Name</label>
+      <label for="contact-name" class="text-[0.8rem] font-semibold">
+        Name
+      </label>
       <input id="contact-name" name="name" type="text" required autocomplete="name" class={field} />
     </div>
     <div class="flex flex-col gap-1.5">
-      <label for="contact-email" class="text-[0.8rem] font-semibold">Email</label>
+      <label for="contact-email" class="text-[0.8rem] font-semibold">
+        Email
+      </label>
       <input id="contact-email" name="email" type="email" required autocomplete="email" class={field} />
     </div>
     <div class="flex flex-col gap-1.5 sm:col-span-2">
-      <label for="contact-message" class="text-[0.8rem] font-semibold">Message</label>
+      <label for="contact-message" class="text-[0.8rem] font-semibold">
+        Message
+      </label>
       <textarea id="contact-message" name="message" rows="5" required class:list={[field, "resize-y"]}></textarea>
     </div>
     <div class="flex flex-wrap items-center gap-4 sm:col-span-2">
@@ -37,8 +43,7 @@ const field =
 </div>
 
 <script>
-  const fallback =
-    "Your message didn't send. Check your connection and try again, or email greg@kempgt.com.";
+  const fallback = "Your message didn't send. Check your connection and try again, or email greg@kempgt.com.";
 
   function bindContactForm() {
     const form = document.querySelector<HTMLFormElement>("[data-contact-form]");

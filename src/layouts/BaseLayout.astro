@@ -35,16 +35,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="theme-color" content="#f4f4f1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#191c26" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="/assets/favicon.ico" sizes="any" />
-    {
-      math && (
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
-          integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
-          crossorigin="anonymous"
-        />
-      )
-    }
+    {math && (
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+        integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
+        crossorigin="anonymous"
+      />
+    )}
 
     <!-- Apply the saved or system theme before first paint, and again on the
          incoming document during each client-side navigation. Also opt in to
@@ -56,20 +54,15 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           try {
             stored = localStorage.getItem("theme");
           } catch {}
-          const dark = stored
-            ? stored === "dark"
-            : matchMedia("(prefers-color-scheme: dark)").matches;
+          const dark = stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
           doc.documentElement.classList.toggle("dark", dark);
-          const motion =
-            "IntersectionObserver" in window &&
-            !matchMedia("(prefers-reduced-motion: reduce)").matches;
+          const motion = "IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches;
           doc.documentElement.classList.toggle("motion", motion);
         };
         applyRootClasses(document);
         document.addEventListener("astro:before-swap", (e) => applyRootClasses(e.newDocument));
       })();
     </script>
-
     <ClientRouter />
   </head>
   <body class="flex min-h-dvh flex-col bg-paper text-ink">

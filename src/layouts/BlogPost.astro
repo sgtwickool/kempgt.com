@@ -4,7 +4,6 @@ import BaseLayout from "./BaseLayout.astro";
 export interface Props {
   title: string;
   date: Date;
-  author: string;
   tags: string[];
   summary: string;
   math: boolean;
@@ -24,7 +23,9 @@ const isoDate = date.toISOString().split("T")[0];
 <BaseLayout title={`${title} | Greg Kemp`} description={summary} math={math}>
   <article class="mx-auto max-w-6xl px-5 pt-8 sm:px-8 md:pt-14">
     <div class="mx-auto max-w-[42rem]">
-      <a href="/blog" class="link font-sans text-[0.85rem]">All posts</a>
+      <a href="/blog" class="link font-sans text-[0.85rem]">
+        All posts
+      </a>
       <header class="mt-8 mb-10 flex flex-col gap-4">
         <p class="m-0 font-sans text-[0.8rem] font-semibold text-link">
           <time datetime={isoDate}>{formattedDate}</time>

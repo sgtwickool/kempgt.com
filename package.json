@@ -1,5 +1,5 @@
 {
-  "name": "kempgt.com",
+  "name": "gregkemp.dev",
   "type": "module",
   "version": "1.0.0",
   "private": true,
@@ -7,6 +7,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "astro": "astro"
   },
   "dependencies": {
@@ -21,5 +24,12 @@
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
     "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "prettier": "^3.9.9",
+    "prettier-plugin-astro": "^1.1.0",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "typescript": "^5.9.3"
   }
 }

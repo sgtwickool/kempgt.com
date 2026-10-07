@@ -1,0 +1,25 @@
+---
+// Type printed in two inks, slightly out of register: a pink pass sits
+// behind and the blue pass overprints it. Only the blue pass is read out.
+interface Props {
+  as?: "h1" | "h2";
+  id?: string;
+  /** Type styles, shared by both passes. */
+  class?: string;
+}
+
+const { as: Heading = "h2", id, class: type } = Astro.props;
+const html = await Astro.slots.render("default");
+---
+
+<div class="relative">
+  <p
+    aria-hidden="true"
+    class:list={[
+      type,
+      "ink absolute inset-0 translate-x-[max(4px,0.045em)] translate-y-[max(3px,0.035em)] text-ink-line dark:mix-blend-normal",
+    ]}
+    set:html={html}
+  />
+  <Heading id={id} class:list={[type, "ink relative text-ink-strong dark:mix-blend-normal"]} set:html={html} />
+</div>
