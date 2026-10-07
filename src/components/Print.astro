@@ -17,24 +17,33 @@ const { name, plate = true, class: className } = Astro.props;
 const print = prints[name];
 const { width, height, layers } = print;
 const labels: Label[] = "labels" in print && print.labels ? print.labels : [];
-const ink = { line: "var(--ink-line)", strong: "var(--ink-strong)", glow: "var(--ink-glow)" };
+const ink = {
+  line: "var(--ink-line)",
+  strong: "var(--ink-strong)",
+  glow: "var(--ink-glow)",
+  paper: "var(--print-bg)",
+};
 
 const oneOff = new Set(["draw", "fade", "slide", "stamp", "follow"]);
 const motions = [...layers, ...labels].map((item) => item.motion).filter((m): m is Motion => !!m);
-const timeline = Math.max(
-  1,
-  ...motions.map((m) => (oneOff.has(m.kind) ? (m.delay ?? 0) + (m.duration ?? 1) : 0)),
-);
-const animated = motions.length > 0;
+// One-off motions, and loops that wait for a moment (a plucked string), share
+// the print's timeline.
+const timed = (m: Motion) => oneOff.has(m.kind) || m.delay !== undefined;
+const timeline = Math.max(1, ...motions.map((m) => (timed(m) ? (m.delay ?? 0) + (m.duration ?? 1) : 0)));
+const animated = motions.length > 0 || layers.some((layer) => layer.spin);
 const n = (v: number) => +v.toFixed(4);
+
+/** --k: how far through its own share of the scroll this motion is (0 to 1). */
+function progress(m: Motion) {
+  const start = n((m.delay ?? 0) / timeline);
+  const span = n((m.duration ?? 1) / timeline);
+  return `--k:clamp(0, calc((var(--p, 1) - ${start}) / ${span}), 1)`;
+}
 
 function motionStyle(m: Motion | undefined): string[] {
   if (!m) return [];
   if (oneOff.has(m.kind)) {
-    // This layer's share of the scroll: from `start` to `start + span` of --p.
-    const start = n((m.delay ?? 0) / timeline);
-    const span = n((m.duration ?? 1) / timeline);
-    const k = `--k:clamp(0, calc((var(--p, 1) - ${start}) / ${span}), 1)`;
+    const k = progress(m);
     switch (m.kind) {
       case "draw":
         // Hidden until it starts, or a round line cap shows as a stray dot.
@@ -78,9 +87,14 @@ function motionStyle(m: Motion | undefined): string[] {
     case "spin":
       return [...origin, `transform:rotate(calc(${phase} * ${m.reverse ? -1 : 1}))`];
     case "vibrate":
-      return [...origin, `transform:scaleY(cos(${phase}))`];
+      // With a delay, it's still until plucked and then builds up.
+      return m.delay === undefined
+        ? [...origin, `transform:scaleY(cos(${phase}))`]
+        : [progress(m), ...origin, `transform:scaleY(calc(cos(${phase}) * var(--k)))`];
     case "blink":
-      return [`opacity:calc(0.62 + 0.38 * cos(${phase}))`];
+      return m.delay === undefined
+        ? [`opacity:calc(0.62 + 0.38 * cos(${phase}))`]
+        : [progress(m), `opacity:calc((0.62 + 0.38 * cos(${phase})) * var(--k))`];
     default: {
       const [x, y] = m.to ?? [0, 0];
       return [
@@ -111,8 +125,11 @@ const labelStyle = (label: Label) =>
     `fill:${tone[label.tone ?? "ink"]}`,
     `font-size:${label.size}px`,
     `font-weight:${label.weight ?? 500}`,
+    label.symbol ? "font-family:var(--font-serif);font-style:italic" : "",
     ...motionStyle(label.motion),
-  ].join(";");
+  ]
+    .filter(Boolean)
+    .join(";");
 ---
 
 <svg
@@ -125,14 +142,28 @@ const labelStyle = (label: Label) =>
 >
   <g filter="url(#rough)">
     {
-      layers.map((layer) => (
-        <path
-          class="ink"
-          d={layer.d}
-          pathLength={layer.motion?.kind === "draw" ? 1 : undefined}
-          style={style(layer)}
-        />
-      ))
+      layers.map((layer) => {
+        // Paper ink covers what's beneath it, so it mustn't blend like the inks do.
+        const blend = layer.ink !== "paper";
+        const shape = (
+          <path
+            class:list={[blend && !layer.spin && "ink"]}
+            d={layer.d}
+            pathLength={layer.motion?.kind === "draw" ? 1 : undefined}
+            style={style(layer)}
+          />
+        );
+        if (!layer.spin) return shape;
+        const { origin, cycles, reverse } = layer.spin;
+        return (
+          <g
+            class:list={[blend && "ink"]}
+            style={`transform-origin:${origin[0]}px ${origin[1]}px;transform:rotate(calc(var(--t, 0) * ${cycles * (reverse ? -1 : 1)} * 360deg))`}
+          >
+            {shape}
+          </g>
+        );
+      })
     }
   </g>
   {

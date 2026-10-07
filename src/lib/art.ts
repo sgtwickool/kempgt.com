@@ -10,7 +10,8 @@
 // it scrolls back: a climber clips bolts on the way to the summit, a car
 // stops at chargers, a product is classified one node at a time.
 
-export type Ink = "line" | "strong" | "glow";
+/** "paper" paints in the background colour, to wipe out what's beneath it. */
+export type Ink = "line" | "strong" | "glow" | "paper";
 
 type Pt = [number, number];
 
@@ -26,7 +27,9 @@ export interface Motion {
    *   follow  the layer (drawn around 0,0) travels along `along`
    *
    * Loops repeat as long as the print is scrolled past, `cycles` times per
-   * screen height: spin, vibrate, blink, emit.
+   * screen height: spin, vibrate, blink, emit. A vibrate or blink with a
+   * delay waits until then and builds up over its duration (a plucked string,
+   * a cursor that appears once typing stops).
    */
   kind: "draw" | "fade" | "slide" | "stamp" | "follow" | "spin" | "vibrate" | "blink" | "emit";
   delay?: number;
@@ -56,6 +59,8 @@ export interface Layer {
   /** Fill the shape with the plate colour as well as stroking it. */
   knockout?: boolean;
   motion?: Motion;
+  /** Turn with the scroll as well, so a layer can draw in and spin. */
+  spin?: { origin: Pt; cycles: number; reverse?: boolean };
 }
 
 export interface Label {
@@ -66,6 +71,8 @@ export interface Label {
   weight?: number;
   anchor?: "start" | "middle" | "end";
   tone?: "ink" | "muted" | "strong";
+  /** Set in the serif italic, for maths and physics symbols. */
+  symbol?: boolean;
   motion?: Motion;
 }
 
@@ -620,160 +627,315 @@ function dayworksSheet(): Layer[] {
   ];
 }
 
-/* ---------- All prints ---------- */
+/* ---------- More stories ---------- */
 
-const small = (layers: Layer[]): Print => ({ width: 200, height: 140, layers });
-const large = (layers: Layer[]): Print => ({ width: 520, height: 340, layers });
-
-function buildPrints() {
-  const codeRows: Pt[] = [[0, 92], [1, 64], [1, 104], [2, 54], [2, 76], [1, 40], [0, 24]];
-  let codeLine = "";
-  let codeStrong = "";
-  codeRows.forEach(([indent, len], i) => {
-    const seg = `M${30 + indent * 16} ${26 + i * 14}h${len}`;
-    if (i === 2) codeLine += seg;
-    else codeStrong += seg;
-  });
-
-  let laser = "";
-  for (let j = 0; j < 3; j++) {
-    laser += path(sample(80, (u) => [u * 110, 46 + j * 16 + 5 * Math.sin((u * 110) / 5)]));
-  }
-  const spiral = sample(260, (u) => {
-    const [th, rho] = [u * 24, 22 * (1 - 0.72 * u)];
-    return [100 + u * 82 + rho * Math.cos(th), 70 - u * 12 + 0.6 * rho * Math.sin(th)];
-  });
-  // A radiation-reaction photon: a short wave packet thrown off the electron.
-  const [px0, py0] = spiral[spiral.length - 1];
-  const photon = path(
-    sample(30, (u) => {
-      const s = u * 18;
-      return [px0 + 0.45 * s + 2.4 * Math.sin(s * 1.3) * 0.87, py0 - 0.87 * s + 2.4 * Math.sin(s * 1.3) * 0.45];
-    }),
-  );
-
-  let tokRings = "";
-  for (const r of [0.78, 0.64, 0.5, 0.36, 0.22]) tokRings += fluxSurface(98, 70, 44, r);
-
-  let fnDots = "";
-  let fnIdle = "";
-  let fnFiring = "";
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 6; j++) {
-      const [x, y] = [28 + i * 18, 25 + j * 18];
-      fnDots += circle(x, y, 3.2);
-      if ((i * 7 + j * 3) % 5 === 0) fnIdle += rect(x - 6, y - 6, 12, 12);
-      if ((i + j * 2) % 7 === 0) fnFiring += circle(x, y, 7);
-    }
-  }
-
-  let removed = "";
-  let added = "";
-  ([[74, 0], [96, 1], [58, 0], [110, 1], [84, 1], [46, 0]] as Pt[]).forEach(([len, isAdd], i) => {
-    const y = 26 + i * 18;
-    if (isAdd) added += `M44 ${y}h${len}M18 ${y}h12M24 ${y - 6}v12`;
-    else removed += `M44 ${y}h${len}M18 ${y}h12`;
-  });
-
-  // Harmonics 1 to 4 of a string, each vibrating about its own rest line,
-  // the nth harmonic n times as fast as the first.
-  const harmonics: Layer[] = [];
-  let restLines = "";
-  for (let h = 1; h <= 4; h++) {
-    const mid = 22 + (h - 1) * 32;
-    restLines += `M12 ${mid}H188`;
-    harmonics.push({
-      d: path(sample(80, (u) => [12 + 176 * u, mid - 11 * Math.sin(h * Math.PI * u)])),
-      ink: h % 2 ? "line" : "strong",
-      width: 1.8,
-      motion: { kind: "vibrate", origin: [100, mid], cycles: 3 * h },
-    });
-  }
-
+function gears(): Print {
+  // An engineering drawing: centre lines and pitch circles first, then the
+  // teeth, then the numbers. The gears turn with the scroll throughout.
+  const [bx, by, sx, sy] = [84, 72, 146, 98];
   return {
-    // How I got here
-    gears: small([
-      { d: circle(84, 72, 30), ink: "glow" },
+    width: 200,
+    height: 140,
+    layers: [
+      { d: `M${bx} 26V118M38 ${by}H130M${sx} 70V126M118 ${sy}H174`, ink: "line", width: 0.8, motion: fade(0, 0.35) },
+      { d: circle(bx, by, 40) + circle(sx, sy, 22), ink: "line", width: 0.9, motion: draw(0.2, 0.6) },
+      { d: circle(bx, by, 30), ink: "glow", motion: stamp(1.5) },
       {
-        d: gear(84, 72, 40, 6, 12, 0) + circle(84, 72, 11),
+        d: gear(bx, by, 40, 6, 12, 0) + circle(bx, by, 11),
         ink: "line",
         width: 2,
-        motion: { kind: "spin", origin: [84, 72], cycles: 1 },
+        motion: draw(0.6, 0.8),
+        spin: { origin: [bx, by], cycles: 1 },
       },
       {
         // 8 teeth against 12, so it turns 1.5 times as far the other way.
-        d: gear(146, 98, 22, 5, 8, 0.45) + circle(146, 98, 5),
+        d: gear(sx, sy, 22, 5, 8, 0.45) + circle(sx, sy, 5),
         ink: "strong",
         width: 2.2,
         round: true,
-        motion: { kind: "spin", origin: [146, 98], cycles: 1.5, reverse: true },
+        motion: draw(1.0, 0.6),
+        spin: { origin: [sx, sy], cycles: 1.5, reverse: true },
       },
-    ]),
-    tokamak: small([
-      { d: fluxSurface(98, 70, 44, 0.36), ink: "glow", motion: fade(1.4, 0.8) },
-      { d: tokRings, ink: "line", width: 1.6, motion: draw(0.5, 1.4) },
-      { d: fluxSurface(98, 70, 44, 0.95), ink: "strong", width: 4, motion: draw(0, 1.1) },
-    ]),
+    ],
+    labels: [
+      { x: 8, y: 18, text: "12 teeth", size: 11, weight: 700, tone: "muted", motion: slide(1.7) },
+      { x: 194, y: 134, text: "8 teeth", size: 11, weight: 700, tone: "muted", anchor: "end", motion: slide(1.85) },
+      { x: 194, y: 22, text: "1.5 : 1", size: 14, weight: 800, tone: "strong", anchor: "end", motion: stamp(2.0) },
+    ],
+  };
+}
+
+function iter(): Layer[] {
+  // The plasma ignites and its flux surfaces ripple outwards, a particle
+  // laps one of them, then the first wall goes up around it and the forces
+  // on it are worked out one by one.
+  const [cx, cy, s] = [98, 70, 40];
+  const surfaces = [0.22, 0.36, 0.5, 0.64, 0.78];
+  const wall = sample(20, (u) => {
+    const y = K0 * 0.95 * Math.sin(u * TAU);
+    return [cx + (C0 + 0.95 * Math.cos(u * TAU) - T0 * y * y) * s, cy - y * s] as Pt;
+  }).slice(0, 20);
+  const centre: Pt = [cx + C0 * s, cy];
+  const arrows = wall
+    .filter((_, i) => i % 2 === 0)
+    .map(([x, y]) => {
+      const [dx, dy] = [x - centre[0], y - centre[1]];
+      const len = Math.hypot(dx, dy) || 1;
+      const [ux, uy] = [dx / len, dy / len];
+      const [hx, hy] = [-uy, ux];
+      const [x1, y1, x2, y2] = [x + 3 * ux, y + 3 * uy, x + 13 * ux, y + 13 * uy];
+      return `M${f(x1)} ${f(y1)}L${f(x2)} ${f(y2)}M${f(x2 - 4 * ux + 3 * hx)} ${f(y2 - 4 * uy + 3 * hy)}L${f(x2)} ${f(y2)}L${f(x2 - 4 * ux - 3 * hx)} ${f(y2 - 4 * uy - 3 * hy)}`;
+    });
+  return [
+    { d: fluxSurface(cx, cy, s, 0.36), ink: "glow", motion: stamp(0.05, 0.35) },
+    ...surfaces.map((r, i): Layer => ({ d: fluxSurface(cx, cy, s, r), ink: "line", width: 1.6, motion: draw(0.25 + i * 0.15, 0.35) })),
+    { d: circle(0, 0, 2.8), ink: "strong", motion: follow(fluxSurface(cx, cy, s, 0.64), 0.5, 1.4) },
+    { d: fluxSurface(cx, cy, s, 0.95), ink: "strong", width: 4, motion: draw(1.1, 0.7) },
+    ...arrows.map((d, i): Layer => ({ d, ink: "line", width: 1.6, round: true, motion: stamp(1.85 + i * 0.07, 0.2) })),
+  ];
+}
+
+function firstJob(): Layer[] {
+  // An editor opens, the code types itself line by line, a line gets
+  // selected, and it runs.
+  const rows: Pt[] = [[0, 70], [1, 52], [1, 84], [2, 46], [2, 64], [1, 34], [0, 18]];
+  return [
+    { d: rect(18, 14, 164, 112) + "M18 26H182", ink: "line", width: 1.8, motion: draw(0, 0.45) },
+    { d: circle(26, 20, 2) + circle(33, 20, 2) + circle(40, 20, 2), ink: "line", width: 1.4, motion: fade(0.4, 0.2) },
+    { d: rect(24, 56, 116, 12), ink: "glow", motion: slide(1.95, 0.3) },
+    ...rows.map(([indent, len], i): Layer => ({
+      d: `M${30 + indent * 12} ${40 + i * 12}h${len}`,
+      ink: i === 1 ? "line" : "strong",
+      width: 5,
+      round: true,
+      motion: draw(0.55 + i * 0.18, 0.2),
+    })),
+    {
+      d: `M${30 + 18 + 4} ${40 + 6 * 12 + 4}v-8`,
+      ink: "line",
+      width: 2.2,
+      round: true,
+      motion: { kind: "blink", cycles: 4, delay: 0.55 + 7 * 0.18, duration: 0.1 },
+    },
+    { d: circle(164, 106, 11), ink: "glow", motion: stamp(2.3) },
+    { d: "M158 106l4 4l8 -9", ink: "strong", width: 2.4, round: true, motion: draw(2.4, 0.2) },
+  ];
+}
+
+function laserPlasma(): Print {
+  // A laser pulse travels down the beam and hits an electron, which spirals
+  // in, throwing off radiation-reaction photons, into a tight focal spot.
+  let waves = "";
+  for (let j = 0; j < 3; j++) {
+    waves += path(sample(80, (u) => [u * 110, 46 + j * 16 + 5 * Math.sin((u * 110) / 5)]));
+  }
+  const spiral = sample(260, (u) => {
+    const [th, rho] = [u * 24, 22 * (1 - 0.72 * u)];
+    return [100 + u * 82 + rho * Math.cos(th), 70 - u * 12 + 0.6 * rho * Math.sin(th)] as Pt;
+  });
+  const spiralD = path(spiral);
+  const at = arcFractions(spiral);
+  const [from, span] = [0.9, 1.4];
+  const photon = path(sample(20, (u) => [u * 14 - 7, 2.2 * Math.sin(u * 14 * 1.3)]));
+  const emitted = [0.25, 0.45, 0.65, 0.85].map((fraction) => {
+    const i = at.findIndex((a) => a >= fraction);
+    const [x, y] = spiral[i];
+    return { along: `M${f(x)} ${f(y)}L${f(x + 8)} ${f(y - 32)}`, delay: from + span * at[i] };
+  });
+  const end = spiral[spiral.length - 1];
+  return {
+    width: 200,
+    height: 140,
+    layers: [
+      { d: circle(end[0] + 2, end[1] - 2, 9), ink: "glow", motion: stamp(from + span - 0.05, 0.35) },
+      { d: waves, ink: "line", width: 1.8, motion: draw(0, 0.6) },
+      {
+        d: "M-12 0a12 7 0 1 0 24 0a12 7 0 1 0 -24 0",
+        ink: "glow",
+        motion: follow("M0 62H100", 0.3, 0.6, { vanish: true }),
+      },
+      { d: spiralD, ink: "strong", width: 1.8, round: true, motion: draw(from, span) },
+      ...emitted.map(({ along, delay }): Layer => ({
+        d: photon,
+        ink: "line",
+        width: 1.6,
+        round: true,
+        motion: follow(along, delay, 0.45, { turn: true, vanish: true }),
+      })),
+      { d: circle(0, 0, 3.2), ink: "strong", motion: follow(spiralD, from, span) },
+    ],
+    labels: [{ x: 150, y: 26, text: "γ", size: 22, weight: 600, tone: "strong", symbol: true, motion: fade(emitted[0].delay, 0.2) }],
+  };
+}
+
+function customsConnect(): Layer[] {
+  // Declarations arrive, each runs through a serverless function on its way
+  // to customs (lighting the function up as it runs), and customs signs off.
+  const docs = [36, 70, 104];
+  const xs = [78, 102, 126];
+  const ys = [46, 70, 94];
+  const requests: [number, number, number][] = [[0, 0, 0], [1, 1, 1], [2, 2, 2], [0, 2, 0], [1, 0, 1], [2, 1, 2]];
+  const [from, gap, span] = [0.7, 0.25, 1.1];
+  const doc = (y: number) => rect(14, y - 10, 16, 20) + `M18 ${y - 3}h8M18 ${y + 2}h8M18 ${y + 6}h5`;
+  const done = from + gap * (requests.length - 1) + span;
+  return [
+    ...requests.map(([, i, j], n): Layer => {
+      const route: Pt[] = [[32, docs[requests[n][0]]], [xs[i], ys[j]], [163, 70]];
+      const at = arcFractions(route);
+      return { d: rect(xs[i] - 7, ys[j] - 7, 14, 14), ink: "glow", motion: stamp(from + gap * n + span * at[1] - 0.04, 0.2) };
+    }),
+    ...docs.map((y, i): Layer => ({ d: doc(y), ink: "line", width: 1.4, motion: stamp(i * 0.08, 0.25) })),
+    {
+      d: xs.flatMap((x) => ys.map((y) => rect(x - 8, y - 8, 16, 16))).join(""),
+      ink: "line",
+      width: 1.5,
+      motion: fade(0.3, 0.4),
+    },
+    { d: circle(176, 70, 13), ink: "strong", width: 2.4, motion: draw(0.4, 0.4) },
+    ...requests.map(([d, i, j], n): Layer => ({
+      d: circle(0, 0, 3.2),
+      ink: "strong",
+      motion: follow(path([[32, docs[d]], [xs[i], ys[j]], [163, 70]]), from + gap * n, span, { vanish: true }),
+    })),
+    { d: "M169 70l5 5l9 -10", ink: "strong", width: 2.4, round: true, motion: draw(done, 0.25) },
+  ];
+}
+
+function essentialsToPremium(): Layer[] {
+  // A phone app for individuals, then its much bigger business sibling,
+  // whose table fills up row by row.
+  const rows = [62, 48, 70, 40, 56];
+  return [
+    { d: rect(20, 56, 32, 8), ink: "glow", motion: stamp(0.9) },
+    { d: rect(16, 30, 40, 80) + "M30 36h12", ink: "line", width: 2.2, motion: draw(0, 0.5) },
+    { d: rect(22, 44, 28, 8) + "M24 60h26M24 70h20M24 80h24", ink: "strong", width: 2.2, round: true, motion: draw(0.4, 0.4) },
+    { d: "M60 70H71M67 66l4 4l-4 4", ink: "line", width: 1.8, round: true, motion: draw(1.0, 0.25) },
+    { d: rect(76, 16, 110, 96) + "M76 27H186M100 27V112", ink: "strong", width: 2.2, motion: draw(1.2, 0.5) },
+    { d: circle(82, 21.5, 1.6) + circle(88, 21.5, 1.6) + circle(94, 21.5, 1.6), ink: "strong", width: 1.2, motion: fade(1.6, 0.2) },
+    { d: "M82 38h12M82 48h10M82 58h12", ink: "line", width: 3, round: true, motion: draw(1.6, 0.3) },
+    { d: rect(104, 64, 78, 12), ink: "glow", motion: stamp(2.55) },
+    ...rows.map((len, i): Layer => ({
+      d: `M108 ${42 + i * 14}h${len}`,
+      ink: "strong",
+      width: 3.4,
+      round: true,
+      motion: draw(1.8 + i * 0.13, 0.22),
+    })),
+  ];
+}
+
+function devSync(): Layer[] {
+  // Three teammates each throw a snippet into the shared library, someone
+  // searches, and the match lights up.
+  const people = [38, 74, 110];
+  const cards = [46, 76, 106];
+  const card = rect(-52, -12, 104, 24) + "M-44 -3h40M-44 4h58";
+  return [
+    { d: rect(70, 62, 108, 28), ink: "glow", motion: stamp(2.2) },
+    ...people.map((y, i): Layer => ({
+      d: circle(22, y - 6, 5) + `M13 ${y + 9}Q22 ${y - 2} 31 ${y + 9}`,
+      ink: "strong",
+      width: 1.8,
+      motion: stamp(i * 0.1, 0.25),
+    })),
+    { d: rect(62, 10, 124, 18), ink: "line", width: 1.8, motion: draw(0.1, 0.4) },
+    { d: circle(72, 19, 4) + "M75 22l4 4", ink: "strong", width: 1.6, round: true, motion: stamp(0.45) },
+    ...people.map((y, i): Layer => ({
+      d: card,
+      ink: i === 1 ? "strong" : "line",
+      width: 2,
+      round: true,
+      motion: follow(`M34 ${y}L124 ${cards[i]}`, 0.5 + i * 0.3, 0.5),
+    })),
+    { d: "M84 19h40", ink: "strong", width: 2.4, round: true, motion: draw(1.65, 0.4) },
+  ];
+}
+
+function codeMop(): Layer[] {
+  // A pull request diff appears, the mop sweeps back and forth down it and
+  // wipes out the removed lines, and the review is approved.
+  const rows: { len: number; added: boolean }[] = [
+    { len: 74, added: false }, { len: 96, added: true }, { len: 58, added: false },
+    { len: 110, added: true }, { len: 84, added: true }, { len: 46, added: false },
+  ];
+  const y = (i: number) => 24 + i * 18;
+  const sweep: Pt[] = [];
+  rows.forEach((_, i) => sweep.push([36, y(i) - 4], [160, y(i) + 4]));
+  const at = arcFractions(sweep);
+  const [from, span] = [1.0, 1.7];
+  const mop = "M-14 -2Q0 -10 14 -2L12 8Q0 3 -12 8Z";
+  return [
+    ...rows.map((row, i): Layer => ({
+      d: `M44 ${y(i)}h${row.len}M18 ${y(i)}h12` + (row.added ? `M24 ${y(i) - 6}v12` : ""),
+      ink: row.added ? "strong" : "line",
+      width: 6,
+      round: true,
+      motion: draw(i * 0.12, 0.3),
+    })),
+    ...rows.flatMap((row, i): Layer[] =>
+      row.added
+        ? []
+        : [{ d: `M12 ${y(i)}H${48 + row.len}`, ink: "paper", width: 11, round: true, motion: draw(from + span * at[2 * i], span * (at[2 * i + 1] - at[2 * i])) }],
+    ),
+    { d: mop, ink: "glow", motion: follow(path(sweep), from, span, { vanish: true }) },
+    { d: circle(176, 118, 12), ink: "glow", motion: stamp(from + span + 0.05) },
+    { d: "M170 118l4.5 4.5l8.5 -10", ink: "strong", width: 2.6, round: true, motion: draw(from + span + 0.2, 0.25) },
+  ];
+}
+
+function guitar(): Layer[] {
+  // The strings are strung, then a plectrum strums down across them and each
+  // one starts to vibrate, at its own harmonic, only once it's been plucked.
+  const mids = [22, 54, 86, 118];
+  const strum = "M170 6L156 134";
+  const [from, span] = [1.0, 0.8];
+  const plucked = (mid: number) => from + (span * (mid - 6)) / 128;
+  return [
+    ...mids.map((mid, i): Layer => ({ d: `M12 ${mid}H188`, ink: "strong", width: 0.8, motion: draw(i * 0.18, 0.4) })),
+    ...mids.map((mid, i): Layer => {
+      const h = i + 1;
+      return {
+        d: path(sample(80, (u) => [12 + 176 * u, mid - 11 * Math.sin(h * Math.PI * u)])),
+        ink: h % 2 ? "line" : "strong",
+        width: 1.8,
+        motion: { kind: "vibrate", origin: [100, mid], cycles: 3 * h, delay: plucked(mid), duration: 0.35 },
+      };
+    }),
+    { d: "M0 -7L6 4Q0 8 -6 4Z", ink: "line", motion: follow(strum, from, span, { vanish: true }) },
+  ];
+}
+
+/* ---------- All prints ---------- */
+
+const small = (layers: Layer[]): Print => ({ width: 200, height: 140, layers });
+
+function buildPrints() {
+  return {
+    // How I got here
+    gears: gears(),
+    tokamak: small(iter()),
     crag: small(crag()),
-    code: small([
-      { d: rect(22, 46, 128, 16), ink: "glow", motion: slide(1.4) },
-      { d: codeLine, ink: "line", width: 6, round: true, motion: draw(0.5, 0.6) },
-      { d: codeStrong, ink: "strong", width: 6, round: true, motion: draw(0, 1.2) },
-      { d: `M60 ${26 + 6 * 14 - 6}v12`, ink: "line", width: 3, round: true, motion: { kind: "blink", cycles: 4 } },
-    ]),
-    laser: small([
-      { d: circle(184, 56, 9), ink: "glow", motion: stamp(2.1, 0.4) },
-      { d: laser, ink: "line", width: 1.8, motion: draw(0, 0.9) },
-      { d: path(spiral), ink: "strong", width: 1.8, round: true, motion: draw(0.6, 1.6) },
-      { d: photon, ink: "line", width: 1.6, round: true, motion: { kind: "emit", cycles: 3, to: [10, -40] } },
-    ]),
+    code: small(firstJob()),
+    laser: laserPlasma(),
     onion: small(onion()),
 
     // Work
     classify: classification(),
     lanes: small(cqrs()),
-    functions: small([
-      { d: fnDots, ink: "glow", motion: fade(0, 0.6) },
-      { d: fnIdle, ink: "line", width: 1.8, motion: fade(0.4, 0.6) },
-      { d: fnFiring, ink: "strong", width: 2.4, motion: { kind: "blink", cycles: 3 } },
-    ]),
+    functions: small(customsConnect()),
     fibres: small(leaf()),
-    grow: small([
-      { d: rect(88, 24, 88, 88), ink: "glow", motion: fade(1.3, 0.6) },
-      { d: rect(24, 66, 40, 40), ink: "line", width: 2.4, motion: draw(0, 0.7) },
-      {
-        d: rect(80, 16, 88, 88) + "M94 40h58M94 56h44M94 72h64M94 88h36",
-        ink: "strong",
-        width: 2.4,
-        round: true,
-        motion: draw(0.6, 1),
-      },
-    ]),
+    grow: small(essentialsToPremium()),
 
     // Side projects
-    dayworks: large(dayworksSheet()),
-    snippets: small([
-      { d: rect(30, 26, 104, 62), ink: "glow", motion: fade(0, 0.5) },
-      { d: rect(30, 26, 104, 62) + rect(48, 42, 104, 62), ink: "line", width: 2.2, motion: slide(0.2, 0.6) },
-      {
-        d: rect(66, 58, 104, 62) + "M80 78h44M90 92h54M80 106h30",
-        ink: "strong",
-        width: 4,
-        round: true,
-        motion: slide(0.6, 0.6),
-      },
-    ]),
-    diff: small([
-      { d: "M128 126Q162 64 198 42L198 66Q168 88 142 130Z", ink: "glow", motion: slide(1.4, 0.5) },
-      { d: removed, ink: "line", width: 6, round: true, motion: draw(0, 0.8) },
-      { d: added, ink: "strong", width: 6, round: true, motion: draw(0.6, 0.9) },
-    ]),
+    dayworks: { width: 520, height: 340, layers: dayworksSheet() },
+    snippets: small(devSync()),
+    diff: small(codeMop()),
     route: small(evRoute()),
     fleet: small(fleet()),
 
     // Outside work
     cave: small(cave()),
-    strings: small([{ d: restLines, ink: "strong", width: 0.8 }, ...harmonics]),
+    strings: small(guitar()),
     loss: small(lumpyLoss()),
   } satisfies Record<string, Print>;
 }
