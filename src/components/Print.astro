@@ -4,7 +4,7 @@
 // enters at the bottom of the screen, 1 once it's just above the middle) and
 // --t (screens scrolled since it entered). Without the script, or with
 // reduced motion, --p falls back to 1 and --t to 0: the finished print.
-import { prints, type PrintName, type Layer } from "../lib/art";
+import { prints, type PrintName, type Layer, type Label, type Motion } from "../lib/art";
 
 interface Props {
   name: PrintName;
@@ -14,19 +14,21 @@ interface Props {
 }
 
 const { name, plate = true, class: className } = Astro.props;
-const { width, height, layers } = prints[name];
+const print = prints[name];
+const { width, height, layers } = print;
+const labels: Label[] = "labels" in print && print.labels ? print.labels : [];
 const ink = { line: "var(--ink-line)", strong: "var(--ink-strong)", glow: "var(--ink-glow)" };
 
-const oneOff = new Set(["draw", "fade", "slide", "stamp"]);
+const oneOff = new Set(["draw", "fade", "slide", "stamp", "follow"]);
+const motions = [...layers, ...labels].map((item) => item.motion).filter((m): m is Motion => !!m);
 const timeline = Math.max(
   1,
-  ...layers.map(({ motion: m }) => (m && oneOff.has(m.kind) ? (m.delay ?? 0) + (m.duration ?? 1) : 0)),
+  ...motions.map((m) => (oneOff.has(m.kind) ? (m.delay ?? 0) + (m.duration ?? 1) : 0)),
 );
-const animated = layers.some((layer) => layer.motion);
+const animated = motions.length > 0;
 const n = (v: number) => +v.toFixed(4);
 
-function motionStyle(layer: Layer): string[] {
-  const m = layer.motion;
+function motionStyle(m: Motion | undefined): string[] {
   if (!m) return [];
   if (oneOff.has(m.kind)) {
     // This layer's share of the scroll: from `start` to `start + span` of --p.
@@ -35,11 +37,31 @@ function motionStyle(layer: Layer): string[] {
     const k = `--k:clamp(0, calc((var(--p, 1) - ${start}) / ${span}), 1)`;
     switch (m.kind) {
       case "draw":
-        return [k, "stroke-dasharray:1", "stroke-dashoffset:calc(1 - var(--k))"];
+        // Hidden until it starts, or a round line cap shows as a stray dot.
+        return [
+          k,
+          "stroke-dasharray:1",
+          "stroke-dashoffset:calc(1 - var(--k))",
+          "opacity:clamp(0, calc(var(--k) * 50), 1)",
+        ];
       case "fade":
         return [k, "opacity:var(--k)"];
       case "slide":
         return [k, "opacity:var(--k)", "transform:translateX(calc((1 - var(--k)) * -12px))"];
+      case "follow":
+        // The layer is drawn around 0,0 and carried along the path.
+        return [
+          k,
+          `offset-path:path('${m.along}')`,
+          "offset-distance:calc(var(--k) * 100%)",
+          `offset-rotate:${m.turn ? "auto" : "0deg"}`,
+          "offset-anchor:0 0",
+          "transform-box:view-box",
+          "transform-origin:0 0",
+          m.vanish
+            ? "opacity:clamp(0, calc(min(var(--k), 1 - var(--k)) * 25), 1)"
+            : "opacity:clamp(0, calc(var(--k) * 25), 1)",
+        ];
       default:
         return [
           k,
@@ -73,21 +95,31 @@ function motionStyle(layer: Layer): string[] {
 function style(layer: Layer) {
   const paint = layer.width
     ? [
-        `fill:${layer.knockout ? "var(--plate)" : "none"}`,
+        `fill:${layer.knockout ? "var(--print-bg)" : "none"}`,
         `stroke:${ink[layer.ink]}`,
         `stroke-width:${layer.width}`,
         "stroke-linejoin:round",
         layer.round ? "stroke-linecap:round" : "",
       ]
     : [`fill:${ink[layer.ink]}`];
-  return [...paint, ...motionStyle(layer)].filter(Boolean).join(";");
+  return [...paint, ...motionStyle(layer.motion)].filter(Boolean).join(";");
 }
+
+const tone = { ink: "var(--ink)", muted: "var(--muted)", strong: "var(--ink-strong)" };
+const labelStyle = (label: Label) =>
+  [
+    `fill:${tone[label.tone ?? "ink"]}`,
+    `font-size:${label.size}px`,
+    `font-weight:${label.weight ?? 500}`,
+    ...motionStyle(label.motion),
+  ].join(";");
 ---
 
 <svg
   viewBox={`0 0 ${width} ${height}`}
   class:list={["print block h-auto w-full", plate && "rounded-[3px] bg-plate", className]}
   data-animate={animated ? "" : undefined}
+  style={`--print-bg:var(${plate ? "--plate" : "--paper"})`}
   aria-hidden="true"
   focusable="false"
 >
@@ -103,6 +135,19 @@ function style(layer: Layer) {
       ))
     }
   </g>
+  {
+    labels.map((label) => (
+      <text
+        class="print-label"
+        x={label.x}
+        y={label.y}
+        text-anchor={label.anchor ?? "start"}
+        style={labelStyle(label)}
+      >
+        {label.text}
+      </text>
+    ))
+  }
   {plate && <rect class="grain" width={width} height={height} />}
 </svg>
 
@@ -146,3 +191,14 @@ function style(layer: Layer) {
 
   document.addEventListener("astro:page-load", bindScrollPrints);
 </script>
+
+<style>
+  /* Labels sit on a paper-coloured halo so lines behind them don't cut through. */
+  .print-label {
+    font-family: var(--font-sans);
+    paint-order: stroke;
+    stroke: var(--paper);
+    stroke-width: 5px;
+    stroke-linejoin: round;
+  }
+</style>

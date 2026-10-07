@@ -48,7 +48,7 @@ const route: Item[] = [
     body: "A thesis on QED radiation reaction in high-energy laser–plasma interactions. I came out loving the physics.",
   },
   {
-    print: "classifySmall",
+    print: "onion",
     when: "Now",
     title: "Senior developer and architect",
     body: "Designing and building TariffTel 2.0 with a small team. Mostly brand new work, which is the fun kind.",
@@ -209,13 +209,8 @@ const featureTitle =
       </div>
 
       <article class="grid items-center gap-8 md:grid-cols-12">
-        <div class="relative md:col-span-7">
-          <div
-            aria-hidden="true"
-            class="halftone ink absolute top-[58%] left-[70%] aspect-square w-[30%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-          >
-          </div>
-          <Print name="classify" plate={false} class="relative" />
+        <div class="md:col-span-7">
+          <Print name="classify" plate={false} />
         </div>
         <div class="flex flex-col gap-3 md:col-span-5">
           <p class={label}>2022–present</p>
@@ -341,9 +336,3 @@ const featureTitle =
   </div>
 </BaseLayout>
 
-<style>
-  .halftone {
-    background-image: radial-gradient(circle, var(--ink-glow) 46%, transparent 48%);
-    background-size: 9px 9px;
-  }
-</style>
