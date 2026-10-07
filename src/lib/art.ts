@@ -583,9 +583,11 @@ function lumpyLoss(): Layer[] {
   ];
 }
 
-function dayworksSheet(): Layer[] {
-  // A day's labour allocation: booked hours are bars, unallocated hours are
-  // flagged, and the diary is stamped as signed off.
+function dayworks(): Print {
+  // Brief the day, book the hours, sign off the diary. The sheet and its
+  // hours appear, each worker's row is booked through the day in turn (with
+  // any unallocated hours flagged as soon as the row is done), then the diary
+  // is signed, stamped and locked.
   const [cols, rows, gx, gy, cw, rh] = [10, 7, 40, 36, 44, 36];
   const spans: Pt[][] = [
     [[0, 4], [4, 10]],
@@ -596,35 +598,67 @@ function dayworksSheet(): Layer[] {
     [[0, 5]],
     [[1, 10]],
   ];
+  const [bookFrom, perRow, rowGap] = [0.75, 0.35, 0.42];
   let grid = "";
   for (let r = 0; r <= rows; r++) grid += `M${gx} ${gy + r * rh}h${cols * cw}`;
   for (let c = 0; c <= cols; c++) grid += `M${gx + c * cw} ${gy}v${rows * rh}`;
-  let bars = "";
-  let flagged = "";
+
+  const layers: Layer[] = [{ d: grid, ink: "line", width: 1.6, motion: draw(0, 0.5) }];
   spans.forEach((row, r) => {
+    const rowStart = bookFrom + r * rowGap;
     const y = gy + r * rh + rh / 2;
     const booked = new Set<number>();
     row.forEach(([s, e]) => {
-      bars += `M${gx + s * cw + 12} ${y}H${gx + e * cw - 12}`;
       for (let h = s; h < e; h++) booked.add(h);
+      layers.push({
+        d: `M${gx + s * cw + 12} ${y}H${gx + e * cw - 12}`,
+        ink: "strong",
+        width: 15,
+        round: true,
+        motion: draw(rowStart + (perRow * s) / cols, (perRow * (e - s)) / cols),
+      });
     });
+    let gap = 0;
     for (let h = 0; h < cols; h++) {
-      if (!booked.has(h)) flagged += rect(gx + h * cw + 4, gy + r * rh + 4, cw - 8, rh - 8);
+      if (booked.has(h)) continue;
+      layers.unshift({
+        d: rect(gx + h * cw + 4, gy + r * rh + 4, cw - 8, rh - 8),
+        ink: "glow",
+        motion: stamp(rowStart + perRow + 0.03 + gap++ * 0.03, 0.18),
+      });
     }
   });
-  return [
-    { d: flagged, ink: "glow", motion: fade(2, 0.5) },
-    { d: circle(452, 282, 34), ink: "glow", motion: stamp(2.6, 0.45) },
-    { d: grid, ink: "line", width: 1.6, motion: draw(0, 1) },
-    { d: bars, ink: "strong", width: 15, round: true, motion: draw(0.5, 1.6) },
-    {
-      d: circle(452, 282, 42) + "M434 283L447 296L472 266",
-      ink: "line",
-      width: 4.5,
-      round: true,
-      motion: stamp(2.6, 0.45),
-    },
-  ];
+
+  const signFrom = bookFrom + rows * rowGap + 0.05;
+  const signature = path(
+    sample(160, (u) => [40 + 160 * u + 7 * Math.cos(u * 26), 316 - 8 * Math.sin(u * 26) * (0.6 + 0.4 * Math.sin(u * 5))]),
+  );
+  const stampAt = signFrom + 0.6;
+  layers.push(
+    { d: signature, ink: "strong", width: 2, round: true, motion: draw(signFrom, 0.5) },
+    { d: "M36 332H232", ink: "line", width: 1.4, motion: draw(signFrom - 0.1, 0.2) },
+    { d: circle(452, 282, 34), ink: "glow", motion: stamp(stampAt, 0.35) },
+    { d: circle(452, 282, 42), ink: "line", width: 4.5, motion: stamp(stampAt, 0.35) },
+    { d: "M434 283L447 296L472 266", ink: "line", width: 4.5, round: true, motion: draw(stampAt + 0.25, 0.2) },
+    { d: rect(372, 314, 20, 16), ink: "strong", width: 2.4, knockout: true, motion: stamp(stampAt + 0.4, 0.25) },
+    { d: "M376 314v-6a6 6 0 0 1 12 0v6", ink: "strong", width: 2.4, round: true, motion: draw(stampAt + 0.55, 0.2) },
+  );
+
+  return {
+    width: 520,
+    height: 340,
+    layers,
+    labels: Array.from({ length: cols }, (_, c) => ({
+      x: gx + c * cw + cw / 2,
+      y: 27,
+      text: String(7 + c).padStart(2, "0"),
+      size: 12,
+      weight: 700,
+      anchor: "middle" as const,
+      tone: "muted" as const,
+      motion: fade(0.3 + c * 0.035, 0.15),
+    })),
+  };
 }
 
 /* ---------- More stories ---------- */
@@ -927,7 +961,7 @@ function buildPrints() {
     grow: small(essentialsToPremium()),
 
     // Side projects
-    dayworks: { width: 520, height: 340, layers: dayworksSheet() },
+    dayworks: dayworks(),
     snippets: small(devSync()),
     diff: small(codeMop()),
     route: small(evRoute()),
