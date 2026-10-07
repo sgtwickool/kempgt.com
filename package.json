@@ -10,6 +10,7 @@
     "check": "astro check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "photo": "node scripts/print-photo.mjs",
     "astro": "astro"
   },
   "dependencies": {

@@ -12,6 +12,7 @@ npm run build    # production build to dist/
 npm run preview  # serve the production build locally
 npm run check    # type-check the project
 npm run format   # format everything with Prettier
+npm run photo    # reprint the profile photo after replacing src/assets/profile.jpg
 ```
 
 ## Design
@@ -40,7 +41,8 @@ day's labour allocation, and so on.
 
 ```
 public/                    Static files served as-is (CV, favicon, CNAME).
-src/assets/                Images that Astro optimises (the profile photo).
+src/assets/                Images that Astro optimises: the profile photo, and its
+                           risograph prints for each theme (made by scripts/print-photo.mjs).
 src/pages/index.astro      The homepage, including all of its copy.
 src/pages/404.astro        Not-found page.
 src/pages/_blog/           The blog, currently switched off (see below).

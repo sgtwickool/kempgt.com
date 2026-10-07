@@ -6,7 +6,9 @@ import SectionHeading from "../components/SectionHeading.astro";
 import Print from "../components/Print.astro";
 import ContactForm from "../components/ContactForm.astro";
 import type { PrintName } from "../lib/art";
-import portrait from "../assets/profile.jpg";
+// The photo printed in the site's inks, one per theme (see scripts/print-photo.mjs).
+import portraitLight from "../assets/profile-print-light.webp";
+import portraitDark from "../assets/profile-print-dark.webp";
 
 interface Item {
   print: PrintName;
@@ -138,15 +140,20 @@ const featureTitle = "m-0 font-sans text-[1.9rem] leading-[1.05] font-black trac
         <div class="relative w-24 shrink-0 md:w-full">
           <div
             aria-hidden="true"
-            class="absolute inset-0 translate-x-[4px] translate-y-[4px] rounded-[3px] bg-ink-line md:translate-x-[7px] md:translate-y-[6px]"
+            class="absolute inset-0 translate-x-[4px] translate-y-[4px] rounded-[3px] bg-ink-strong md:translate-x-[7px] md:translate-y-[6px]"
           ></div>
-          <Image
-            src={portrait}
-            alt="Greg Kemp in sunglasses, holding a small tortoise"
-            widths={[240, 480]}
-            sizes="(min-width: 768px) 15rem, 6rem"
-            class="relative block aspect-square w-full rounded-[3px] object-cover"
-          />
+          {[
+            { src: portraitLight, theme: "dark:hidden" },
+            { src: portraitDark, theme: "hidden dark:block" },
+          ].map(({ src, theme }) => (
+            <Image
+              src={src}
+              alt="Greg Kemp in sunglasses, holding a small tortoise"
+              widths={[240, 480]}
+              sizes="(min-width: 768px) 15rem, 6rem"
+              class:list={["relative aspect-square w-full rounded-[3px] object-cover", theme]}
+            />
+          ))}
         </div>
         <figcaption class="font-sans text-[0.78rem] leading-snug text-muted">
           Rescuing a tortoise from a road in Croatia.
