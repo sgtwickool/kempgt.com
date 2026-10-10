@@ -16,6 +16,8 @@ interface Item {
   body: string;
   stack?: string;
   when?: string;
+  /** Where to find it, e.g. its own site */
+  link?: { href: string; text: string };
 }
 
 const route: Item[] = [
@@ -100,8 +102,9 @@ const sideProjects: Item[] = [
   {
     print: "mop",
     title: "CodeMop",
-    body: "AI code review. It hooks into GitHub pull requests and suggests improvements automatically.",
-    stack: "Python, FastAPI, PostgreSQL",
+    body: "AI code review for pull requests. It reviews every push, commits the fixes you tick, and learns what isn't a problem.",
+    stack: "Python, GitHub Actions, any model provider",
+    link: { href: "https://codemop.com", text: "Visit codemop.com" },
   },
   {
     print: "evRoute",
@@ -301,6 +304,16 @@ const featureTitle = "m-0 font-sans text-[1.9rem] leading-[1.05] font-black trac
             <h3 class={itemTitle}>{project.title}</h3>
             <p class="m-0 text-[0.9rem] leading-relaxed">{project.body}</p>
             <p class="stack m-0">{project.stack}</p>
+            {project.link && (
+              <a
+                href={project.link.href}
+                target="_blank"
+                rel="noopener"
+                class="link self-start font-sans text-[0.85rem]"
+              >
+                {project.link.text}
+              </a>
+            )}
           </article>
         ))}
       </div>
